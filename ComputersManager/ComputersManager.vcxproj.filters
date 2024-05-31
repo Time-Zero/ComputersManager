@@ -74,4 +74,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="login_windows.qss">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>
