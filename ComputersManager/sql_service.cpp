@@ -50,7 +50,7 @@ void SqlService::GetUserInfo(UserInfo& user_info)
 			res = p_stat_->executeQuery(sql);
 		}
 		else {
-			std::this_thread::sleep_for(std::chrono::microseconds(500));
+			std::this_thread::sleep_for(std::chrono::microseconds(SQL_DELAYTIME));
 		}
 
 		if (res) {
@@ -85,7 +85,7 @@ std::string SqlService::GetUserPassword(std::string& userid)
 			res = p_stat_->executeQuery(sql);
 		}
 		else {
-			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			std::this_thread::sleep_for(std::chrono::milliseconds(SQL_DELAYTIME));
 		}
 		
 		if (res && res->rowsCount() != 0) {
@@ -122,11 +122,38 @@ unsigned int SqlService::Register(UserInfo& user_info)
 			p_stat_->execute(sql);
 		}
 		else {
-			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			std::this_thread::sleep_for(std::chrono::milliseconds(SQL_DELAYTIME));
 		}
 	}
 	catch (const sql::SQLException& e)
 	{
+		BDEBUG(e.what());
+		ret = 1;
+	}
+
+	return ret;
+}
+
+unsigned int SqlService::ModifyInfo(UserInfo& user_info)
+{
+	unsigned int ret = 0;
+	std::string sql = "update "
+		USER_INFO_TABLE
+		" set "
+		UI_NAME "='" + user_info.name + "',"
+		UI_PASSWORD "='" + user_info.password + "'"
+		" where " UI_ID "=" + "'" + user_info.id + "'";
+	BDEBUG(sql);
+
+	try {
+		if (p_stat_) {
+			p_stat_->executeUpdate(sql);
+		}
+		else {
+			std::this_thread::sleep_for(std::chrono::microseconds(SQL_DELAYTIME));
+		}
+	}
+	catch (const sql::SQLException& e) {
 		BDEBUG(e.what());
 		ret = 1;
 	}

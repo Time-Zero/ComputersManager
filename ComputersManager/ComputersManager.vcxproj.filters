@@ -55,6 +55,9 @@
     <ClCompile Include="login_window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="modify_window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sql_service.h">
@@ -68,9 +71,15 @@
     <QtMoc Include="login_window.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="modify_window.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="login_window.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="modify_window.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
@@ -79,6 +88,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="computer_manager.qss">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="modify_window.qss">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

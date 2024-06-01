@@ -1,7 +1,8 @@
 ﻿#include "computers_manager.h"
 
 ComputersManager::ComputersManager(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent),
+    p_modify_window_(nullptr)
 {
     ui.setupUi(this);
     QFile file(":/ComputersManager/computer_manager.qss");
@@ -12,6 +13,7 @@ ComputersManager::ComputersManager(QWidget *parent)
     
     connect(ui.toolButton_mainpage, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_mainpage);
     connect(ui.pushButton_exit_login, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_exit_login);
+    connect(ui.pushButton_modify_info, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_modify_info);
 
     p_login_window_ = new LoginWindow();
     connect(p_login_window_, &LoginWindow::signal_login, this, &ComputersManager::slot_login);
@@ -27,7 +29,7 @@ void ComputersManager::InitMainPage()
         SqlService::GetInstance().GetUserInfo(user_info_);
     });
 
-    while (fut.wait_for(std::chrono::microseconds(400)) != std::future_status::ready) {
+    while (fut.wait_for(std::chrono::microseconds(SQL_TIMEOUT)) != std::future_status::ready) {
         QMessageBox::warning(this, QStringLiteral("严重错误"), QStringLiteral("与后台断开连接"));
         return;
     }
@@ -69,12 +71,14 @@ void ComputersManager::on_click_pushbutton_exit_login()
     user_info_.permission = 0;
 
     this->setVisible(false);
-    p_login_window_ = new LoginWindow(); SqlService::GetInstance().GetUserInfo(user_info_);
+    p_login_window_ = new LoginWindow(); 
     connect(p_login_window_, &LoginWindow::signal_login, this, &ComputersManager::slot_login);
     p_login_window_->show();
 }
 
 void ComputersManager::on_click_pushbutton_modify_info()
 {
-
+    p_modify_window_ = new ModifyWindow(nullptr, user_info_.id);
+    connect(p_modify_window_, &ModifyWindow::signal_modify_finish, [this]()->void {delete p_modify_window_; });
+    p_modify_window_->show();
 }

@@ -1,9 +1,11 @@
 #pragma once
 
-#include <QtWidgets/QWidget>
-#include "ui_computers_manager.h"
 #include "login_window.h"
+#include "ui_computers_manager.h"
 #include <qfile.h>
+#include <QtWidgets/QWidget>
+#include "modify_window.h"
+
 
 #define MAIN_PAGE 0
 
@@ -25,5 +27,6 @@ private:
 private:
     Ui::ComputersManagerClass ui;
     LoginWindow* p_login_window_;
+    ModifyWindow* p_modify_window_;
     UserInfo user_info_;
 };

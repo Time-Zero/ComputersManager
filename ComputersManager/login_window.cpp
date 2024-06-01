@@ -69,7 +69,7 @@ void LoginWindow::on_click_button_login()
 		return SqlService::GetInstance().GetUserPassword(userid);
 		}, userid);
 
-	while (result_from_database.wait_for(std::chrono::milliseconds(400)) != std::future_status::ready) {
+	while (result_from_database.wait_for(std::chrono::milliseconds(SQL_TIMEOUT)) != std::future_status::ready) {
 		QMessageBox::warning(this, QStringLiteral("严重错误"), QStringLiteral("无法连接到后台"), QMessageBox::Ok);
 		return;
 	}
@@ -150,7 +150,7 @@ void LoginWindow::on_click_button_register_confirm()
 		return SqlService::GetInstance().Register(user_info);
 		});
 
-	while (fut_ret.wait_for(std::chrono::milliseconds(400)) != std::future_status::ready) {
+	while (fut_ret.wait_for(std::chrono::milliseconds(SQL_TIMEOUT)) != std::future_status::ready) {
 		QMessageBox::warning(this, QStringLiteral("严重错误"), QStringLiteral("无法连接到后台"));
 		return;
 	}

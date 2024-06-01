@@ -2,6 +2,7 @@
     <qresource prefix="/ComputersManager">
         <file>login_windows.qss</file>
         <file>computer_manager.qss</file>
+        <file>modify_window.qss</file>
     </qresource>
     <qresource prefix="/picture">
         <file>images/computer (1).svg</file>

@@ -22,6 +22,9 @@
 #define UP_PERMISSION "up_permission"
 #define UP_ORDER "up_order"
 
+#define SQL_TIMEOUT 2000
+#define SQL_DELAYTIME 2200
+
 enum PermissionEnum
 {
 	USER = 1,
@@ -48,6 +51,7 @@ public:
 	void GetUserInfo(UserInfo& user_info);
 	std::string GetUserPassword(std::string& userid);
 	unsigned int Register(UserInfo& user_info);
+	unsigned int ModifyInfo(UserInfo& user_info);
 
 private:
 	SqlService(std::string ip = SQL_IP, std::string user = SQL_USER, std::string password = SQL_PASSWORD);
