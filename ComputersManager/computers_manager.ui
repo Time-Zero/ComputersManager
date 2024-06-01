@@ -1,25 +1,257 @@
-<UI version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>ComputersManagerClass</class>
- <widget class="QWidget" name="ComputersManagerClass" >
-  <property name="objectName" >
-   <string notr="true">ComputersManagerClass</string>
-  </property>
-  <property name="geometry" >
+ <widget class="QWidget" name="ComputersManagerClass">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>400</height>
+    <width>888</width>
+    <height>582</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>ComputersManager</string>
-  </property>$centralwidget$
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QWidget" name="widget_menu" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QToolButton" name="toolButton_mainpage">
+        <property name="text">
+         <string>主页</string>
+        </property>
+        <property name="icon">
+         <iconset resource="computersmanager.qrc">
+          <normaloff>:/picture/images/首页.svg</normaloff>
+          <normalon>:/picture/images/首页 (1).svg</normalon>:/picture/images/首页.svg</iconset>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextUnderIcon</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="toolButton_user">
+        <property name="text">
+         <string>用户</string>
+        </property>
+        <property name="icon">
+         <iconset resource="computersmanager.qrc">
+          <normaloff>:/picture/images/user.svg</normaloff>
+          <normalon>:/picture/images/user (1).svg</normalon>:/picture/images/user.svg</iconset>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextUnderIcon</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="toolButton_room">
+        <property name="text">
+         <string>机房</string>
+        </property>
+        <property name="icon">
+         <iconset resource="computersmanager.qrc">
+          <normaloff>:/picture/images/computer.svg</normaloff>
+          <normalon>:/picture/images/computer (1).svg</normalon>:/picture/images/computer.svg</iconset>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextUnderIcon</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="toolButton_order">
+        <property name="text">
+         <string>预约</string>
+        </property>
+        <property name="icon">
+         <iconset resource="computersmanager.qrc">
+          <normaloff>:/picture/images/order.svg</normaloff>
+          <normalon>:/picture/images/order (1).svg</normalon>:/picture/images/order.svg</iconset>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextUnderIcon</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="toolButton_sum">
+        <property name="text">
+         <string>统计</string>
+        </property>
+        <property name="icon">
+         <iconset resource="computersmanager.qrc">
+          <normaloff>:/picture/images/统计.svg</normaloff>
+          <normalon>:/picture/images/统计 (1).svg</normalon>:/picture/images/统计.svg</iconset>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextUnderIcon</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="toolButton">
+        <property name="text">
+         <string>备份</string>
+        </property>
+        <property name="icon">
+         <iconset resource="computersmanager.qrc">
+          <normaloff>:/picture/images/备份恢复.svg</normaloff>
+          <normalon>:/picture/images/备份恢复 (1).svg</normalon>:/picture/images/备份恢复.svg</iconset>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextUnderIcon</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QStackedWidget" name="stackedWidget">
+     <widget class="QWidget" name="page_main">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QWidget" name="widget" native="true">
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>学号：</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_mainpage_userid">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>姓名：</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="label_mainpage_username">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>身份：</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLabel" name="label_mainpage_permission">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_7">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>预约：</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLabel" name="label_mainpage_order">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget_2" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QPushButton" name="pushButton_modify_info">
+            <property name="text">
+             <string>修改信息</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_exit_login">
+            <property name="text">
+             <string>退出登录</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_user"/>
+    </widget>
+   </item>
+  </layout>
  </widget>
- <layoutDefault spacing="6" margin="11" />
- <pixmapfunction></pixmapfunction>
+ <layoutdefault spacing="6" margin="11"/>
  <resources>
-   <include location="computersmanager.qrc"/>
+  <include location="computersmanager.qrc"/>
  </resources>
  <connections/>
-</UI>
+</ui>

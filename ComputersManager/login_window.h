@@ -8,6 +8,7 @@
 #include "common_tools.h"
 #include <sql_service.h>
 #include <qmessagebox.h>
+#include <future>
 
 class LoginWindow : public QWidget
 {
@@ -18,7 +19,7 @@ public:
 	~LoginWindow();
 
 signals:
-	void signal_login();
+	void signal_login(std::string userid);
 
 private:
 	void on_click_button_login();

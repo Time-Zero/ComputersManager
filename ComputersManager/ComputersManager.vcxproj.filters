@@ -78,5 +78,8 @@
     <None Include="login_windows.qss">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="computer_manager.qss">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

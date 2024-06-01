@@ -63,7 +63,18 @@ void LoginWindow::on_click_button_login()
 		return;
 	}
 
-	std::string right_password = SqlService::GetInstance().GetUserPassword(userid);
+	// 异步处理
+	std::future<std::string> result_from_database = std::async(std::launch::async, 
+		[](std::string userid)->std::string {
+		return SqlService::GetInstance().GetUserPassword(userid);
+		}, userid);
+
+	while (result_from_database.wait_for(std::chrono::milliseconds(400)) != std::future_status::ready) {
+		QMessageBox::warning(this, QStringLiteral("严重错误"), QStringLiteral("无法连接到后台"), QMessageBox::Ok);
+		return;
+	}
+
+	std::string right_password = result_from_database.get();
 	if (right_password.empty()) {
 		QMessageBox::information(this, QStringLiteral("错误"), QStringLiteral("用户不存在"));
 		ui.lineEdit_password->setFocus();
@@ -75,7 +86,7 @@ void LoginWindow::on_click_button_login()
 		return;
 	}
 
-	emit signal_login();
+	emit signal_login(userid);
 }
 
 void LoginWindow::on_click_button_register()
@@ -134,7 +145,18 @@ void LoginWindow::on_click_button_register_confirm()
 	user_info.id = userid;
 	user_info.name = username;
 	user_info.password = password;
-	unsigned int ret = SqlService::GetInstance().Register(user_info);
+
+	std::future<unsigned int> fut_ret = std::async(std::launch::async, [&]() {
+		return SqlService::GetInstance().Register(user_info);
+		});
+
+	while (fut_ret.wait_for(std::chrono::milliseconds(400)) != std::future_status::ready) {
+		QMessageBox::warning(this, QStringLiteral("严重错误"), QStringLiteral("无法连接到后台"));
+		return;
+	}
+
+
+	unsigned int ret = fut_ret.get();
 	if (ret == 0) {
 		QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("注册成功,点击确认返回登录"), QMessageBox::Ok);
 		on_click_button_register_cancal();

@@ -1,0 +1,51 @@
+﻿QWidget#ComputersManagerClass{
+	background-color: white;
+}
+
+QToolButton {
+	font: 13px;
+	color: black;
+	border-style: solid;
+	border-width: 0px 0px 1px 0px;
+	border-color: rgba(171,214,255,30);
+	padding: 8px;
+	border: 1px solid black; /* 边框宽度为1px，颜色为#A0A0A0 */
+	border-radius: 3px; /* 边框圆角 */
+}
+
+QToolButton:hover, QToolButton:pressed {
+	background: #067DB8;
+	color: rgb(255, 255, 255);
+}
+
+QToolButton:checked{
+	color:#FFFFFF;
+	border-style:solid;
+	border-width:0px 4px 0px 0px;
+	border-color:#00B7DE;
+	padding:8px 4px 8px 8px;
+	background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 #00326B,stop:1 #00346D);
+}
+
+QWidget#widget_menu {
+	border: 1px solid black; /* 边框宽度为1px，颜色为#A0A0A0 */
+	border-radius: 3px; /* 边框圆角 */
+}
+
+QPushButton {
+	background-color: #4fc3f7;
+	color: white;
+	border: 2px solid #4fc3f7;
+	border-radius: 4px;
+	padding: 5px 10px;
+}
+
+QPushButton:hover {
+	background-color: #29b6f6;
+	border: 2px solid #29b6f6;
+}
+
+QPushButton:pressed {
+	background-color: #03a9f4;
+	border: 2px solid #03a9f4;
+}

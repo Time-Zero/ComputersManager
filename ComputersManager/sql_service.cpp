@@ -28,11 +28,45 @@ SqlService& SqlService::GetInstance()
 	return ins;
 }
 
-UserInfo SqlService::GetUserInfo(std::string& userid)
+
+void SqlService::GetUserInfo(UserInfo& user_info)
 {
-	UserInfo user_info;
+	sql::ResultSet* res = nullptr;
+	std::string sql = "select " 
+		UI_NAME ","
+		UI_PASSWORD ","
+		UP_PERMISSION ","
+		UP_ORDER
+		" from "
+		USER_INFO_TABLE ","
+		USER_PERMISSION_TABLE
+		" where " UI_ID " = " UP_ID " and "
+		UI_ID "=" + user_info.id;
+
+	BDEBUG(sql);
+	try
+	{
+		if (p_stat_) {
+			res = p_stat_->executeQuery(sql);
+		}
+		else {
+			std::this_thread::sleep_for(std::chrono::microseconds(500));
+		}
+
+		if (res) {
+			res->next();
+			user_info.name = res->getString(UI_NAME);
+			user_info.password = res->getString(UI_PASSWORD);
+			user_info.permission = res->getInt(UP_PERMISSION);
+			user_info.order = res->getInt(UP_ORDER);
+			delete res;
+		}
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+	}
 	
-	return user_info;
 }
 
 std::string SqlService::GetUserPassword(std::string& userid)
@@ -47,17 +81,23 @@ std::string SqlService::GetUserPassword(std::string& userid)
 	
 	try
 	{
-		res = p_stat_->executeQuery(sql);
-		if (res->rowsCount() != 0) {
+		if (p_stat_) {
+			res = p_stat_->executeQuery(sql);
+		}
+		else {
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		}
+		
+		if (res && res->rowsCount() != 0) {
 			res->next();
 			password = res->getString(UI_PASSWORD);
+			delete res;
 		}
 	}
 	catch (const sql::SQLException& e)
 	{
 		BDEBUG(e.what());
 	}
-	delete res;
 
 	return password;
 }
@@ -78,7 +118,12 @@ unsigned int SqlService::Register(UserInfo& user_info)
 
 	try
 	{
-		p_stat_->execute(sql);
+		if (p_stat_) {
+			p_stat_->execute(sql);
+		}
+		else {
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		}
 	}
 	catch (const sql::SQLException& e)
 	{

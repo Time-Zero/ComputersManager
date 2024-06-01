@@ -4,6 +4,7 @@
 #include <jdbc/cppconn/statement.h>
 #include <jdbc/mysql_driver.h>
 #include <string>
+#include <thread>
 #include "common_tools.h"
 
 #define SQL_IP "tcp://172.30.131.79:3306/CMDB"
@@ -44,7 +45,7 @@ public:
 
 	static SqlService& GetInstance();
 
-	UserInfo GetUserInfo(std::string& userid);
+	void GetUserInfo(UserInfo& user_info);
 	std::string GetUserPassword(std::string& userid);
 	unsigned int Register(UserInfo& user_info);
 

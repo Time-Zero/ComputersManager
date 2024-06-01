@@ -104,6 +104,7 @@
     <ClCompile Include="common_tools.cpp" />
     <ClCompile Include="login_window.cpp" />
     <ClCompile Include="sql_service.cpp" />
+    <None Include="computer_manager.qss" />
     <None Include="login_windows.qss" />
     <QtRcc Include="computersmanager.qrc" />
     <QtUic Include="computers_manager.ui" />
