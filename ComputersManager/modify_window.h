@@ -24,6 +24,7 @@ signals:
 private:
 	void on_click_button_cancal();
 	void on_click_button_confirm();
+	void closeEvent(QCloseEvent* e);
 
 private:
 	Ui::ModifyWindowClass ui;

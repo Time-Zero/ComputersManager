@@ -1,11 +1,12 @@
 ﻿#pragma once
+#include "common_tools.h"
 #include <jdbc/cppconn/exception.h>
 #include <jdbc/cppconn/resultset.h>
 #include <jdbc/cppconn/statement.h>
 #include <jdbc/mysql_driver.h>
 #include <string>
 #include <thread>
-#include "common_tools.h"
+#include <queue>
 
 #define SQL_IP "tcp://172.30.131.79:3306/CMDB"
 #define SQL_USER "admin"
@@ -50,8 +51,11 @@ public:
 
 	void GetUserInfo(UserInfo& user_info);
 	std::string GetUserPassword(std::string& userid);
+	std::string GetUserName(std::string& userid, unsigned int userpermission);
 	unsigned int Register(UserInfo& user_info);
 	unsigned int ModifyInfo(UserInfo& user_info);
+	std::queue<UserInfo> GetUserList(UserInfo& user_info);
+	unsigned int ChangInfo(UserInfo& user_info); 
 
 private:
 	SqlService(std::string ip = SQL_IP, std::string user = SQL_USER, std::string password = SQL_PASSWORD);

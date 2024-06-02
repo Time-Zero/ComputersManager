@@ -84,3 +84,8 @@ void ModifyWindow::on_click_button_confirm()
 		QMessageBox::information(this, QStringLiteral("错误"), QStringLiteral("修改失败，未知错误"), QMessageBox::Ok);
 	}
 }
+
+void ModifyWindow::closeEvent(QCloseEvent* e)
+{
+	on_click_button_cancal();
+}

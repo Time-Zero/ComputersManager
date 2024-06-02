@@ -11,9 +11,13 @@ ComputersManager::ComputersManager(QWidget *parent)
         file.close();
     }
     
+    UserTableInit();
+
     connect(ui.toolButton_mainpage, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_mainpage);
+    connect(ui.toolButton_user, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_user);
     connect(ui.pushButton_exit_login, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_exit_login);
     connect(ui.pushButton_modify_info, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_modify_info);
+    connect(ui.pushButton_search_user, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_search_user);
 
     p_login_window_ = new LoginWindow();
     connect(p_login_window_, &LoginWindow::signal_login, this, &ComputersManager::slot_login);
@@ -47,19 +51,111 @@ void ComputersManager::InitMainPage()
     }
 }
 
+void ComputersManager::UserTableInit()
+{
+    ui.lineEdit_search_user->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]+$")));
+    ui.lineEdit_search_user->setPlaceholderText(QString::fromStdString("输入学号以搜索"));
+    QStandardItemModel* user_table_model = new QStandardItemModel(this);
+    QList<QString> user_table_header{"学号","姓名"};
+    user_table_model->setHorizontalHeaderLabels(QStringList(user_table_header));
+    ui.tableView_user->setModel(user_table_model);
+    ui.tableView_user->setFocusPolicy(Qt::NoFocus);
+    ui.tableView_user->setFrameShape(QFrame::NoFrame);
+    ui.tableView_user->setAlternatingRowColors(true);
+    unsigned int table_view_width = ui.tableView_user->width();
+    for (int i = 0; i < user_table_header.size(); i++) {
+        ui.tableView_user->setColumnWidth(i, 368);
+    }
+    ui.tableView_user->setSelectionBehavior(QAbstractItemView::SelectRows);
+    connect(ui.tableView_user, &QAbstractItemView::doubleClicked, this, &ComputersManager::on_click_tableview_user);
+}
+
 void ComputersManager::slot_login(std::string userid)
 {
     delete p_login_window_;
     user_info_.id = userid;     //设置用户
     InitMainPage();
+    if (user_info_.permission == 1) {
+        ui.toolButton_mainpage->setVisible(true);
+        ui.toolButton_user->setVisible(false);
+        ui.toolButton_room->setVisible(true);
+        ui.toolButton_sum->setVisible(false);
+        ui.toolButton_order->setVisible(false);
+        ui.toolButton_backup->setVisible(false);
+    }
+    else {
+        ui.toolButton_mainpage->setVisible(true);
+        ui.toolButton_user->setVisible(true);
+        ui.toolButton_room->setVisible(true);
+        ui.toolButton_sum->setVisible(true);
+        ui.toolButton_order->setVisible(true);
+        ui.toolButton_backup->setVisible(true);
+    }
+
     this->show();
     ui.stackedWidget->setCurrentIndex(MAIN_PAGE);
 }
 
 void ComputersManager::on_click_toolbutton_mainpage()
 {
+    if (ui.stackedWidget->currentIndex() == MAIN_PAGE)
+        return;
     ui.stackedWidget->setCurrentIndex(MAIN_PAGE);
     InitMainPage();
+}
+
+void ComputersManager::on_click_toolbutton_user()
+{
+    if (ui.stackedWidget->currentIndex() == USER_CONTROL_PAGE)
+        return;
+
+    std::future<std::queue<UserInfo>> fut_ret = std::async(std::launch::async, [&]() {
+        return SqlService::GetInstance().GetUserList(user_info_);
+        });
+    
+    ui.lineEdit_search_user->clear();
+    ui.stackedWidget->setCurrentIndex(USER_CONTROL_PAGE);
+
+    QStandardItemModel* model = (QStandardItemModel*)ui.tableView_user->model();
+    TableClear(model);
+
+    std::queue<UserInfo> user_list = fut_ret.get();
+    while (!user_list.empty()) {
+        UserInfo user = user_list.front();
+        user_list.pop();
+        int row = model->rowCount();
+        
+        QStandardItem* item_id = new QStandardItem(QString::fromStdString(user.id));
+        item_id->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        model->setItem(row, TABLE_ID, item_id);
+
+        QStandardItem* item_name = new QStandardItem(QString::fromStdString(user.name));
+        item_name->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        model->setItem(row, TABLE_NAME, item_name);
+        
+        /*model->setItem(row, TABLE_PASSWORD, new QStandardItem(QString::fromStdString(user.password)));
+        
+        QComboBox* combo_permission = new QComboBox();
+        combo_permission->addItems({ "用户","管理员"});
+        if (user.permission == 1) {
+            combo_permission->setCurrentIndex(0);
+        }
+        else {
+            combo_permission->setCurrentIndex(1);
+        }
+        ui.tableView_user->setIndexWidget(model->index(row, TABLE_PERMISSION), combo_permission);
+        
+        
+        QComboBox* combo_order = new QComboBox();
+        combo_order->addItems({ "是","否" });
+        if (user.order == 1) {
+            combo_order->setCurrentIndex(0);
+        }
+        else {
+            combo_order->setCurrentIndex(1);
+        }
+        ui.tableView_user->setIndexWidget(model->index(row, TABLE_ORDER), combo_order);*/
+    }
 }
 
 void ComputersManager::on_click_pushbutton_exit_login()
@@ -81,4 +177,52 @@ void ComputersManager::on_click_pushbutton_modify_info()
     p_modify_window_ = new ModifyWindow(nullptr, user_info_.id);
     connect(p_modify_window_, &ModifyWindow::signal_modify_finish, [this]()->void {delete p_modify_window_; });
     p_modify_window_->show();
+}
+
+void ComputersManager::on_click_pushbutton_search_user()
+{
+    std::string user_id = ui.lineEdit_search_user->text().toStdString();
+    if (user_id.empty()) {
+        QMessageBox::information(this, QStringLiteral("错误"), QStringLiteral("学号不能为空"), QMessageBox::Ok);
+        return;
+    }
+    else if(user_id.size() != 10){
+        QMessageBox::information(this, QStringLiteral("错误"), QStringLiteral("学号非法"), QMessageBox::Ok);
+        return;
+    }
+
+    std::future<std::string> fut_name = std::async(std::launch::async, [&]() {
+        return SqlService::GetInstance().GetUserName(user_id, user_info_.permission);
+        });
+
+    QStandardItemModel* model = static_cast<QStandardItemModel*>(ui.tableView_user->model());
+    TableClear(model);
+    
+    while (fut_name.wait_for(std::chrono::microseconds(SQL_TIMEOUT)) != std::future_status::ready) {
+        QMessageBox::warning(this, QStringLiteral("严重错误"), QStringLiteral("与后端断开连接"), QMessageBox::Ok);
+        return;
+    }
+    std::string user_name = fut_name.get();
+    if (!user_name.empty()) {
+        QStandardItem* item_id = new QStandardItem(QString::fromStdString(user_id));
+        item_id->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        model->setItem(0, TABLE_ID, item_id);
+
+        QStandardItem* item_name = new QStandardItem(QString::fromStdString(user_name));
+        item_name->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        model->setItem(0, TABLE_NAME, item_name);
+    }
+}
+
+void ComputersManager::on_click_tableview_user(const QModelIndex& index)
+{
+    int row = index.row();
+    QStandardItemModel* model = static_cast<QStandardItemModel*>(ui.tableView_user->model());
+    std::string user_id = model->index(row, 0, QModelIndex()).data().toString().toStdString();
+    
+    ChangeUserInfo* change_window = new ChangeUserInfo(user_id, user_info_.permission, nullptr);
+    connect(change_window, &ChangeUserInfo::signal_change_finish, this, [=]() {
+        delete change_window;
+        });
+    change_window->show();
 }

@@ -101,14 +101,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="change_userinfo.cpp" />
     <ClCompile Include="common_tools.cpp" />
     <ClCompile Include="login_window.cpp" />
     <ClCompile Include="modify_window.cpp" />
     <ClCompile Include="sql_service.cpp" />
+    <None Include="change_userinfo.qss" />
     <None Include="computer_manager.qss" />
     <None Include="login_windows.qss" />
     <None Include="modify_window.qss" />
     <QtRcc Include="computersmanager.qrc" />
+    <QtUic Include="change_userinfo.ui" />
     <QtUic Include="computers_manager.ui" />
     <QtMoc Include="computers_manager.h" />
     <ClCompile Include="computers_manager.cpp" />
@@ -119,6 +122,7 @@
     <ResourceCompile Include="ComputersManager.rc" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="change_userinfo.h" />
     <ClInclude Include="common_tools.h" />
     <QtMoc Include="login_window.h" />
     <QtMoc Include="modify_window.h" />

@@ -21,3 +21,11 @@ std::string TransPermissionCodeToString(unsigned int permission)
 
 	return ret;
 }
+
+void TableClear(QStandardItemModel* model)
+{
+	int rowCount = model->rowCount();
+	for (int i = 0; i < rowCount; i++) {
+		model->removeRow(0);
+	}
+}
