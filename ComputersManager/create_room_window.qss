@@ -1,0 +1,86 @@
+﻿QWidget#ModifyWindowClass {
+    background-color: white;
+}
+
+QWidget#widget_machine_num, #widget_user_info {
+    border-radius: 3px;
+    border: 1px solid skyblue;
+}
+
+QLineEdit {
+    height: 35px;
+    border: 1px solid #A0A0A0; /* 边框宽度为1px，颜色为#A0A0A0 */
+    border-radius: 3px; /* 边框圆角 */
+    padding-left: 5px; /* 文本距离左边界有5px */
+    background-color: #F2F2F2; /* 背景颜色 */
+    color: black; /* 文本颜色 */
+    selection-background-color: #A0A0A0; /* 选中文本的背景颜色 */
+    selection-color: #F2F2F2; /* 选中文本的颜色 */
+    font-family: "Microsoft YaHei"; /* 文本字体族 */
+    font-size: 10pt; /* 文本字体大小 */
+}
+
+    QLineEdit:hover { /* 鼠标悬浮在QLineEdit时的状态 */
+        border: 1px solid #298DFF;
+        border-radius: 3px;
+        background-color: #F2F2F2;
+        color: #298DFF;
+        selection-background-color: #298DFF;
+        selection-color: #F2F2F2;
+    }
+
+    QLineEdit[echoMode="2"] { /* QLineEdit有输入掩码时的状态 */
+        lineedit-password-character: 9679;
+        lineedit-password-mask-delay: 2000;
+    }
+
+    QLineEdit:disabled { /* QLineEdit在禁用时的状态 */
+        border: 1px solid #CDCDCD;
+        background-color: #CDCDCD;
+        color: #B4B4B4;
+    }
+
+    QLineEdit:read-only { /* QLineEdit在只读时的状态 */
+        background-color: #CDCDCD;
+        color: #F2F2F2;
+    }
+
+QPushButton {
+    background-color: #4fc3f7;
+    color: white;
+    border: 2px solid #4fc3f7;
+    border-radius: 4px;
+    padding: 5px 10px;
+}
+
+    QPushButton:hover {
+        background-color: #29b6f6;
+        border: 2px solid #29b6f6;
+    }
+
+    QPushButton:pressed {
+        background-color: #03a9f4;
+        border: 2px solid #03a9f4;
+    }
+
+QSpinBox {
+    background-color: #B2EBF2; /* 浅天蓝色 */
+    border: 2px solid #87CEEB; /* 更深的天蓝色作为边框 */
+    border-radius: 5px; /* 可选：圆角 */
+    padding: 2px; /* 可选：内部空间 */
+    color: #000000; /* 文本颜色，黑色以便于对比 */
+    selection-background-color: #87CEEB; /* 选中文本的颜色 */
+}
+
+    QSpinBox::up-button, QSpinBox::down-button {
+        background-color: #87CEEB; /* 更深的天蓝色作为按钮 */
+        border: none; /* 可选：移除边框以便于清晰 */
+    }
+
+        QSpinBox::up-button:hover, QSpinBox::down-button:hover {
+            background-color: #6495ED; /* 当按钮被悬停时，更加深的天蓝色 */
+        }
+
+        QSpinBox::up-button:pressed, QSpinBox::down-button:pressed {
+            background-color: #4682B4; /* 当按钮被按下时，最深的天蓝色 */
+        }

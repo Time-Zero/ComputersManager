@@ -14,6 +14,9 @@
 
 #define USER_INFO_TABLE "user_info"
 #define	USER_PERMISSION_TABLE "user_permission"
+#define MACHINE_ROOM_TABLE "machine_room"
+
+#define PROCEDURE_CREATE_ROOM_MACHINE "CreateTableAndInsertDefaultData"
 
 #define UI_ID "ui_id"
 #define UI_NAME "ui_name"
@@ -22,6 +25,18 @@
 #define UP_ID "up_id"
 #define UP_PERMISSION "up_permission"
 #define UP_ORDER "up_order"
+
+#define MR_NAME "mr_name"
+#define MR_MANAGER "mr_manager"
+
+#define MH_ID "mh_id"
+#define MH_STATUS "mh_status"
+#define MH_CPU "mh_cpu"
+#define MH_RAM "mh_ram"
+#define MH_ROM "mh_rom"
+#define MH_GPU "mh_gpu"
+#define MH_UID "mh_uid"
+#define MH_SDATE "mh_sdate"
 
 #define SQL_TIMEOUT 2000
 #define SQL_DELAYTIME 2200
@@ -41,6 +56,16 @@ typedef struct UserInfo {
 	unsigned int order = 0;
 } UserInfo;
 
+typedef struct MachineInfo {
+	std::string room_name = "";
+	std::string cpu = "";
+	std::string ram = "";
+	std::string rom = "";
+	std::string gpu = "";
+	std::string mananger_id = "";
+	unsigned int machine_num = 0;
+} MachineInfo;
+
 class SqlService
 {
 public:
@@ -50,12 +75,14 @@ public:
 	static SqlService& GetInstance();
 
 	void GetUserInfo(UserInfo& user_info);
+	void GetManagerInfo(UserInfo& user_info);
 	std::string GetUserPassword(std::string& userid);
 	std::string GetUserName(std::string& userid, unsigned int userpermission);
 	unsigned int Register(UserInfo& user_info);
 	unsigned int ModifyInfo(UserInfo& user_info);
 	std::queue<UserInfo> GetUserList(UserInfo& user_info);
 	unsigned int ChangInfo(UserInfo& user_info); 
+	unsigned int CreateRoom(MachineInfo& machine_info);
 
 private:
 	SqlService(std::string ip = SQL_IP, std::string user = SQL_USER, std::string password = SQL_PASSWORD);

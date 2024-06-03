@@ -69,6 +69,39 @@ void SqlService::GetUserInfo(UserInfo& user_info)
 	
 }
 
+void SqlService::GetManagerInfo(UserInfo& user_info)
+{
+	sql::ResultSet* res = nullptr;
+	std::string sql = "select "
+		UI_NAME ","
+		UP_PERMISSION
+		" from " USER_INFO_TABLE ","
+		USER_PERMISSION_TABLE
+		" where " UI_ID "=" UP_ID " and "
+		UI_ID "='" + user_info.id + "'";
+	BDEBUG(sql);
+
+	try
+	{
+		if (p_stat_) {
+			res = p_stat_->executeQuery(sql);
+		}
+
+		if (res) {
+			if (res->rowsCount()) {
+				res->next();
+				user_info.name = res->getString(UI_NAME);
+				user_info.permission = res->getInt(UP_PERMISSION);
+			}
+			delete res;
+		}
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+	}
+}
+
 std::string SqlService::GetUserPassword(std::string& userid)
 {
 	sql::ResultSet* res = nullptr;
@@ -283,6 +316,23 @@ unsigned int SqlService::ChangInfo(UserInfo& user_info)
 		p_conn_->rollback();
 		ret = 1;
 	}
+
+	return ret;
+}
+
+unsigned int SqlService::CreateRoom(MachineInfo& machine_info)
+{
+	unsigned int ret = 0;
+	std::string sql_for_room = "insert into " MACHINE_ROOM_TABLE
+		"(" MR_NAME ","
+		MR_MANAGER ")"
+		" values ("
+		"'" + machine_info.room_name + "',"
+		"'" + machine_info.mananger_id + "')";
+
+	/*std::string sql_for_machine = "call " PROCEDURE_CREATE_ROOM_MACHINE "('" */
+	BDEBUG(sql_for_room);
+
 
 	return ret;
 }

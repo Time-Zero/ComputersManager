@@ -12,13 +12,15 @@ ComputersManager::ComputersManager(QWidget *parent)
     }
     
     UserTableInit();
+    RoomTableInit();
 
     connect(ui.toolButton_mainpage, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_mainpage);
     connect(ui.toolButton_user, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_user);
+    connect(ui.toolButton_room, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_room);
     connect(ui.pushButton_exit_login, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_exit_login);
     connect(ui.pushButton_modify_info, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_modify_info);
     connect(ui.pushButton_search_user, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_search_user);
-
+    connect(ui.pushButton_create_room, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_create_room);
     p_login_window_ = new LoginWindow();
     connect(p_login_window_, &LoginWindow::signal_login, this, &ComputersManager::slot_login);
     p_login_window_->show();
@@ -62,12 +64,30 @@ void ComputersManager::UserTableInit()
     ui.tableView_user->setFocusPolicy(Qt::NoFocus);
     ui.tableView_user->setFrameShape(QFrame::NoFrame);
     ui.tableView_user->setAlternatingRowColors(true);
-    unsigned int table_view_width = ui.tableView_user->width();
+    ui.tableView_user->setSelectionBehavior(QAbstractItemView::SelectRows);
     for (int i = 0; i < user_table_header.size(); i++) {
         ui.tableView_user->setColumnWidth(i, 368);
     }
-    ui.tableView_user->setSelectionBehavior(QAbstractItemView::SelectRows);
     connect(ui.tableView_user, &QAbstractItemView::doubleClicked, this, &ComputersManager::on_click_tableview_user);
+}
+
+void ComputersManager::RoomTableInit()
+{
+    QStandardItemModel* room_table_model = new QStandardItemModel(this);
+    QList<QString> room_table_header{ "机房名","状态","管理员ID","管理员姓名" };
+    room_table_model->setHorizontalHeaderLabels(QStringList(room_table_header));
+    ui.tableView_rooms->setModel(room_table_model);
+    ui.tableView_rooms->setFocusPolicy(Qt::NoFocus);
+    ui.tableView_rooms->setFrameShape(QFrame::NoFrame);
+    ui.tableView_rooms->setAlternatingRowColors(true);
+    ui.tableView_rooms->setSelectionBehavior(QAbstractItemView::SelectRows);
+    int header_size = room_table_header.size();
+    int col_width = TABLE_WIDTH / header_size;
+    for (int i = 0; i < header_size; i++) {
+        ui.tableView_rooms->setColumnWidth(i, col_width);
+    }
+
+    //TODO:删除机房和进入机房
 }
 
 void ComputersManager::slot_login(std::string userid)
@@ -75,7 +95,7 @@ void ComputersManager::slot_login(std::string userid)
     delete p_login_window_;
     user_info_.id = userid;     //设置用户
     InitMainPage();
-    if (user_info_.permission == 1) {
+    if (user_info_.permission == USER) {
         ui.toolButton_mainpage->setVisible(true);
         ui.toolButton_user->setVisible(false);
         ui.toolButton_room->setVisible(true);
@@ -90,6 +110,10 @@ void ComputersManager::slot_login(std::string userid)
         ui.toolButton_sum->setVisible(true);
         ui.toolButton_order->setVisible(true);
         ui.toolButton_backup->setVisible(true);
+    }
+
+    if (user_info_.permission != SADMIN) {
+        ui.pushButton_create_room->setEnabled(false);
     }
 
     this->show();
@@ -133,29 +157,15 @@ void ComputersManager::on_click_toolbutton_user()
         item_name->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         model->setItem(row, TABLE_NAME, item_name);
         
-        /*model->setItem(row, TABLE_PASSWORD, new QStandardItem(QString::fromStdString(user.password)));
-        
-        QComboBox* combo_permission = new QComboBox();
-        combo_permission->addItems({ "用户","管理员"});
-        if (user.permission == 1) {
-            combo_permission->setCurrentIndex(0);
-        }
-        else {
-            combo_permission->setCurrentIndex(1);
-        }
-        ui.tableView_user->setIndexWidget(model->index(row, TABLE_PERMISSION), combo_permission);
-        
-        
-        QComboBox* combo_order = new QComboBox();
-        combo_order->addItems({ "是","否" });
-        if (user.order == 1) {
-            combo_order->setCurrentIndex(0);
-        }
-        else {
-            combo_order->setCurrentIndex(1);
-        }
-        ui.tableView_user->setIndexWidget(model->index(row, TABLE_ORDER), combo_order);*/
     }
+}
+
+void ComputersManager::on_click_toolbutton_room()
+{
+    if (ui.stackedWidget->currentIndex() == ROOM_PAGE)
+        return;
+
+    ui.stackedWidget->setCurrentIndex(ROOM_PAGE);
 }
 
 void ComputersManager::on_click_pushbutton_exit_login()
@@ -212,6 +222,15 @@ void ComputersManager::on_click_pushbutton_search_user()
         item_name->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         model->setItem(0, TABLE_NAME, item_name);
     }
+}
+
+void ComputersManager::on_click_pushbutton_create_room()
+{
+    CreateRoomWindow* create_room_window = new CreateRoomWindow();
+    connect(create_room_window, &CreateRoomWindow::signal_create_room_finish, this, [=]() {
+        delete create_room_window;
+        });
+    create_room_window->show();
 }
 
 void ComputersManager::on_click_tableview_user(const QModelIndex& index)

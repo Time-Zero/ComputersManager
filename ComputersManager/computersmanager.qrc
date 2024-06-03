@@ -4,6 +4,7 @@
         <file>computer_manager.qss</file>
         <file>modify_window.qss</file>
         <file>change_userinfo.qss</file>
+        <file>create_room_window.qss</file>
     </qresource>
     <qresource prefix="/picture">
         <file>images/computer (1).svg</file>

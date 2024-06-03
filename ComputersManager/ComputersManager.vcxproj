@@ -103,11 +103,13 @@
   <ItemGroup>
     <ClCompile Include="change_userinfo.cpp" />
     <ClCompile Include="common_tools.cpp" />
+    <ClCompile Include="create_room_window.cpp" />
     <ClCompile Include="login_window.cpp" />
     <ClCompile Include="modify_window.cpp" />
     <ClCompile Include="sql_service.cpp" />
     <None Include="change_userinfo.qss" />
     <None Include="computer_manager.qss" />
+    <None Include="create_room_window.qss" />
     <None Include="login_windows.qss" />
     <None Include="modify_window.qss" />
     <QtRcc Include="computersmanager.qrc" />
@@ -117,6 +119,7 @@
     <ClCompile Include="computers_manager.cpp" />
     <ClCompile Include="main.cpp" />
     <None Include="ComputersManager.ico" />
+    <QtUic Include="create_room_window.ui" />
     <QtUic Include="login_window.ui" />
     <QtUic Include="modify_window.ui" />
     <ResourceCompile Include="ComputersManager.rc" />
@@ -126,6 +129,7 @@
     <ClInclude Include="common_tools.h" />
     <QtMoc Include="login_window.h" />
     <QtMoc Include="modify_window.h" />
+    <QtMoc Include="create_room_window.h" />
     <ClInclude Include="sql_service.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
