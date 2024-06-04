@@ -9,6 +9,7 @@
 #include <qabstractitemview.h>
 #include "change_userinfo.h"
 #include "create_room_window.h"
+#include "modify_room.h"
 
 
 #define MAIN_PAGE 0
@@ -21,6 +22,15 @@ enum TABLE_USER
 {
     TABLE_ID = 0,
     TABLE_NAME = 1,
+    TABLE_PERMISSION = 2,
+    TABLE_ORDER = 3
+};
+
+enum TABLE_ROOM {
+    TABLE_ROOM_NAME = 0,
+    TABLE_ROOM_STATUES = 1,
+    TABLE_ROOM_MANAGER_ID = 2,
+    TABLE_ROOM_MANAGER_NAME = 3
 };
 
 class ComputersManager : public QWidget
@@ -43,6 +53,7 @@ private:
     void on_click_pushbutton_modify_info();
     void on_click_pushbutton_search_user();
     void on_click_pushbutton_create_room();
+    void on_click_pushbutton_room_manager();
     void on_click_tableview_user(const QModelIndex& index);
 
 private:

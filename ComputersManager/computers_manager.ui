@@ -265,6 +265,20 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_room_manager">
+            <property name="text">
+             <string>管理机房</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_delete_room">
+            <property name="text">
+             <string>删除机房</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>

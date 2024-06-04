@@ -29,6 +29,7 @@
 #define UP_ORDER "up_order"
 
 #define MR_NAME "mr_name"
+#define MR_STATUS "mr_status"
 #define MR_MANAGER "mr_manager"
 
 #define MH_ID "mh_id"
@@ -83,8 +84,10 @@ public:
 	unsigned int Register(UserInfo& user_info);
 	unsigned int ModifyInfo(UserInfo& user_info);
 	std::queue<UserInfo> GetUserList(UserInfo& user_info);
+	std::vector<std::vector<std::string>> GetRoomList();
 	unsigned int ChangInfo(UserInfo& user_info); 
 	unsigned int CreateRoom(MachineInfo& machine_info);
+	std::vector<std::string> GetRoomInfo(std::string& room_name);
 
 private:
 	SqlService(std::string ip = SQL_IP, std::string user = SQL_USER, std::string password = SQL_PASSWORD);

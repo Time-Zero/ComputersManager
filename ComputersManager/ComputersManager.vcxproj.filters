@@ -64,6 +64,9 @@
     <ClCompile Include="create_room_window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="modify_room.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sql_service.h">
@@ -86,6 +89,9 @@
     <QtMoc Include="create_room_window.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="modify_room.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="login_window.ui">
@@ -98,6 +104,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="create_room_window.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="modify_room.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

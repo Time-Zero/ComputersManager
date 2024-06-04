@@ -1,5 +1,9 @@
 ﻿#include "sql_service.h"
 
+/// @brief 构造函数
+/// @param ip 数据库IP
+/// @param user 登录用户名
+/// @param password 密码
 SqlService::SqlService(std::string ip, std::string user, std::string password) {
 	try
 	{
@@ -17,11 +21,15 @@ SqlService::SqlService(std::string ip, std::string user, std::string password) {
 	}
 }
 
+/// @brief 析构函数
 SqlService::~SqlService()
 {
 	BDEBUG("SqlService DisStructure");
 }
 
+
+/// @brief 单例获取
+/// @return 返回单例对象
 SqlService& SqlService::GetInstance()
 {
 	static SqlService ins;
@@ -29,6 +37,8 @@ SqlService& SqlService::GetInstance()
 }
 
 
+/// @brief 获取用户信息，传入id，通过引用返回
+/// @param user_info 需要设置user_info的id
 void SqlService::GetUserInfo(UserInfo& user_info)
 {
 	sql::ResultSet* res = nullptr;
@@ -68,6 +78,7 @@ void SqlService::GetUserInfo(UserInfo& user_info)
 	}
 	
 }
+
 
 void SqlService::GetManagerInfo(UserInfo& user_info)
 {
@@ -237,7 +248,9 @@ std::queue<UserInfo> SqlService::GetUserList(UserInfo& user_info)
 	sql::ResultSet* res = nullptr;
 	std::string sql = "select "
 		UI_ID ","
-		UI_NAME
+		UI_NAME ","
+		UP_PERMISSION ","
+		UP_ORDER
 		" from " USER_INFO_TABLE ","
 		USER_PERMISSION_TABLE
 		" where " UI_ID "=" UP_ID
@@ -252,9 +265,8 @@ std::queue<UserInfo> SqlService::GetUserList(UserInfo& user_info)
 				UserInfo temp;
 				temp.id = res->getString(UI_ID);
 				temp.name = res->getString(UI_NAME);
-				/*temp.password = res->getString(UI_PASSWORD);
 				temp.permission = res->getInt(UP_PERMISSION);
-				temp.order = res->getInt(UP_ORDER);*/
+				temp.order = res->getInt(UP_ORDER);
 
 				ret.emplace(std::move(temp));
 			}
@@ -265,6 +277,43 @@ std::queue<UserInfo> SqlService::GetUserList(UserInfo& user_info)
 		else {
 			return ret;
 		}
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+	}
+
+	return ret;
+}
+
+std::vector<std::vector<std::string>> SqlService::GetRoomList()
+{
+	std::vector<std::vector<std::string>> ret;
+	sql::ResultSet* res = nullptr;
+	std::string sql = "select " MR_NAME ","
+		MR_STATUS ","
+		MR_MANAGER ","
+		UI_NAME
+		" from "
+		MACHINE_ROOM_TABLE ","
+		USER_INFO_TABLE
+		" where " UI_ID "=" MR_MANAGER;
+	BDEBUG(sql);
+
+	try
+	{
+		res = p_stat_->executeQuery(sql);
+		while (res->next()) {
+			std::vector<std::string> temp;
+			temp.emplace_back(res->getString(MR_NAME));
+			temp.emplace_back(res->getString(MR_STATUS));
+			temp.emplace_back(res->getString(MR_MANAGER));
+			temp.emplace_back(res->getString(UI_NAME));
+			ret.emplace_back(temp);
+		}
+
+		if (res)
+			delete res;
 	}
 	catch (const sql::SQLException& e)
 	{
@@ -346,6 +395,36 @@ unsigned int SqlService::CreateRoom(MachineInfo& machine_info)
 			BDEBUG(e.what());
 		}
 		ret = 1;
+		BDEBUG(e.what());
+	}
+
+	return ret;
+}
+
+std::vector<std::string> SqlService::GetRoomInfo(std::string& room_name)
+{
+	std::vector<std::string> ret;
+	sql::ResultSet* res = nullptr;
+	std::string sql = "select " MR_STATUS ","
+		MR_MANAGER
+		" from " MACHINE_ROOM_TABLE
+		" where " MR_NAME "='" + room_name + "'";
+	
+	BDEBUG(sql);
+	try
+	{
+		res = p_stat_->executeQuery(sql);
+		if (res->next()) {
+			ret.emplace_back(res->getString(MR_STATUS));
+			ret.emplace_back(res->getString(MR_MANAGER));
+		}
+
+		if (res) {
+			delete res;
+		}
+	}
+	catch (const sql::SQLException& e)
+	{
 		BDEBUG(e.what());
 	}
 
