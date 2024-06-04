@@ -4,9 +4,11 @@
 #include <jdbc/cppconn/resultset.h>
 #include <jdbc/cppconn/statement.h>
 #include <jdbc/mysql_driver.h>
+#include <mysqlx/xdevapi.h>
 #include <string>
 #include <thread>
 #include <queue>
+#include <memory>
 
 #define SQL_IP "tcp://172.30.131.79:3306/CMDB"
 #define SQL_USER "admin"
@@ -88,8 +90,10 @@ private:
 	SqlService(std::string ip = SQL_IP, std::string user = SQL_USER, std::string password = SQL_PASSWORD);
 	~SqlService();
 private:
-	sql::Connection* p_conn_;
-	sql::Statement* p_stat_;
-
+	/*sql::Connection* p_conn_;
+	sql::Statement* p_stat_;*/
+	std::shared_ptr<sql::Connection> p_conn_;				// sql 连接
+	std::shared_ptr<sql::Statement> p_stat_;				// autocommit
+	std::shared_ptr<sql::Statement> p_stat_transaction_;	// 事务
 };
 

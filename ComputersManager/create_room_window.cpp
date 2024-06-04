@@ -26,10 +26,10 @@ CreateRoomWindow::CreateRoomWindow(QWidget *parent)
 	ui.lineEdit_manager_id->setMaxLength(10);
 
 	ui.lineEdit_room_name->setValidator(new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9]+$")));
-	ui.lineEdit_cpu->setValidator(new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9]+$")));
+	ui.lineEdit_cpu->setValidator(new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9-]+$")));
 	ui.lineEdit_ram->setValidator(new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9]+$")));
 	ui.lineEdit_rom->setValidator(new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9]+$")));
-	ui.lineEdit_gpu->setValidator(new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9]+$")));
+	ui.lineEdit_gpu->setValidator(new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9-]+$")));
 	ui.lineEdit_manager_id->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]+$")));
 
 	connect(ui.pushButton_cancal, &QPushButton::clicked, this, &CreateRoomWindow::on_click_pushbutton_cancal);
@@ -107,6 +107,14 @@ void CreateRoomWindow::on_click_pushbutton_confirm()
 	machine_info.machine_num = machine_num;
 	machine_info.mananger_id = ui.lineEdit_manager_id->text().toStdString();
 	unsigned int ret = SqlService::GetInstance().CreateRoom(machine_info);
+	if (ret == 0) {
+		QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("成功创建机房"),QMessageBox::Ok);
+		emit signal_create_room_finish();
+		return;
+	}
+	else {
+		QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("创建失败，请检查创建参数"), QMessageBox::Ok);
+	}
 }
 
 void CreateRoomWindow::on_click_pushbutton_search_manager()

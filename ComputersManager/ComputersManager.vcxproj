@@ -66,6 +66,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>D:\LIBS\CPP_LIBS\MySQL_Connector\mysql-connector-c++-8.4.0-winx64-debug\mysql-connector-c++-8.4.0-winx64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>D:\LIBS\CPP_LIBS\MySQL_Connector\mysql-connector-c++-8.4.0-winx64-debug\mysql-connector-c++-8.4.0-winx64\lib64\vs14\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

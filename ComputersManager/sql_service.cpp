@@ -6,8 +6,10 @@ SqlService::SqlService(std::string ip, std::string user, std::string password) {
 		BDEBUG("SqlService Structure")
 
 		sql::mysql::MySQL_Driver* driver = sql::mysql::get_mysql_driver_instance();
-		p_conn_ = driver->connect(ip, user, password);
-		p_stat_ = p_conn_->createStatement();
+		p_conn_.reset(driver->connect(ip, user, password));
+		p_stat_.reset(p_conn_->createStatement());
+		p_conn_->setAutoCommit(false);
+		p_stat_transaction_.reset(p_conn_->createStatement());
 	}
 	catch (const sql::SQLException& e)
 	{
@@ -18,8 +20,6 @@ SqlService::SqlService(std::string ip, std::string user, std::string password) {
 SqlService::~SqlService()
 {
 	BDEBUG("SqlService DisStructure");
-	delete p_stat_;
-	delete p_conn_;
 }
 
 SqlService& SqlService::GetInstance()
@@ -292,29 +292,23 @@ unsigned int SqlService::ChangInfo(UserInfo& user_info)
 
 	try
 	{
-		if (p_conn_) {
-			p_conn_->setAutoCommit(false);
-		}
-		else {
-			return ret;
-		}
-
-		if (p_stat_) {
-			p_stat_->executeUpdate(sql_for_user_info);
-			p_stat_->executeUpdate(sql_for_user_permission);
-		}
-		else {
-			return ret;
-		}
+		p_stat_transaction_->executeUpdate(sql_for_user_info);
+		p_stat_transaction_->executeUpdate(sql_for_user_permission);
 
 		p_conn_->commit();
-		p_conn_->setAutoCommit(true);
 	}
 	catch (const sql::SQLException& e)
 	{
-		BDEBUG(e.what());
-		p_conn_->rollback();
+		try
+		{
+			p_conn_->rollback();
+		}
+		catch (const sql::SQLException& e)
+		{
+			BDEBUG(e.what());
+		}
 		ret = 1;
+		BDEBUG(e.what());
 	}
 
 	return ret;
@@ -330,9 +324,30 @@ unsigned int SqlService::CreateRoom(MachineInfo& machine_info)
 		"'" + machine_info.room_name + "',"
 		"'" + machine_info.mananger_id + "')";
 
-	/*std::string sql_for_machine = "call " PROCEDURE_CREATE_ROOM_MACHINE "('" */
-	BDEBUG(sql_for_room);
+	std::string sql_for_machine = "call " PROCEDURE_CREATE_ROOM_MACHINE "('" + machine_info.room_name + "',"
+		+ std::to_string(machine_info.machine_num) + ",'" + machine_info.cpu + "','"
+		+ machine_info.ram + "','" + machine_info.rom + "','" + machine_info.gpu + "')";
 
+	try
+	{
+		p_stat_transaction_->execute(sql_for_machine);
+		p_stat_transaction_->execute(sql_for_room);
+		p_conn_->commit();
+
+	}
+	catch (const sql::SQLException& e)
+	{
+		try
+		{
+			p_conn_->rollback();
+		}
+		catch (const std::exception& e)
+		{
+			BDEBUG(e.what());
+		}
+		ret = 1;
+		BDEBUG(e.what());
+	}
 
 	return ret;
 }
