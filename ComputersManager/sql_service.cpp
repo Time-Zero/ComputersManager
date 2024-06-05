@@ -12,8 +12,6 @@ SqlService::SqlService(std::string ip, std::string user, std::string password) {
 		sql::mysql::MySQL_Driver* driver = sql::mysql::get_mysql_driver_instance();
 		p_conn_.reset(driver->connect(ip, user, password));
 		p_stat_.reset(p_conn_->createStatement());
-		p_conn_->setAutoCommit(false);
-		p_stat_transaction_.reset(p_conn_->createStatement());
 	}
 	catch (const sql::SQLException& e)
 	{
@@ -339,10 +337,11 @@ unsigned int SqlService::ChangInfo(UserInfo& user_info)
 	BDEBUG(sql_for_user_info);
 	BDEBUG(sql_for_user_permission);
 
+	p_conn_->setAutoCommit(false);
 	try
 	{
-		p_stat_transaction_->executeUpdate(sql_for_user_info);
-		p_stat_transaction_->executeUpdate(sql_for_user_permission);
+		p_stat_->executeUpdate(sql_for_user_info);
+		p_stat_->executeUpdate(sql_for_user_permission);
 
 		p_conn_->commit();
 	}
@@ -360,6 +359,7 @@ unsigned int SqlService::ChangInfo(UserInfo& user_info)
 		BDEBUG(e.what());
 	}
 
+	p_conn_->setAutoCommit(true);
 	return ret;
 }
 
@@ -377,10 +377,11 @@ unsigned int SqlService::CreateRoom(MachineInfo& machine_info)
 		+ std::to_string(machine_info.machine_num) + ",'" + machine_info.cpu + "','"
 		+ machine_info.ram + "','" + machine_info.rom + "','" + machine_info.gpu + "')";
 
+	p_conn_->setAutoCommit(false);
 	try
 	{
-		p_stat_transaction_->execute(sql_for_machine);
-		p_stat_transaction_->execute(sql_for_room);
+		p_stat_->execute(sql_for_machine);
+		p_stat_->execute(sql_for_room);
 		p_conn_->commit();
 
 	}
@@ -397,6 +398,7 @@ unsigned int SqlService::CreateRoom(MachineInfo& machine_info)
 		ret = 1;
 		BDEBUG(e.what());
 	}
+	p_conn_->setAutoCommit(true);
 
 	return ret;
 }
@@ -431,6 +433,10 @@ std::vector<std::string> SqlService::GetRoomInfo(std::string& room_name)
 	return ret;
 }
 
+/// @brief 修改机房信息
+/// @param room_name 机房名
+/// @param new_info 要修改的数据
+/// @return 0：修改成功 1：未知错误 2：由于有人正在使用，所以无法停用 
 unsigned int SqlService::ModifyRoomInfo(std::string& room_name, std::pair<int, std::string> new_info)
 {
 	unsigned ret = 0;
@@ -442,6 +448,12 @@ unsigned int SqlService::ModifyRoomInfo(std::string& room_name, std::pair<int, s
 			" where " MR_NAME "='" + room_name + "'";
 	}
 	else if (new_info.first != -1 && new_info.second.empty()) {			// 改状态
+		unsigned int people_on_use = this->GetPeopleOnUseMachine(room_name);
+		if (people_on_use == -1)
+			return 1;
+		else if (people_on_use > 0) {
+			ret = 2;
+		}
 		sql = "update " MACHINE_ROOM_TABLE
 			" set " MR_STATUS "=" + std::to_string(new_info.first) +
 			" where " MR_NAME "='" + room_name + "'";
@@ -473,34 +485,20 @@ unsigned int SqlService::ModifyRoomInfo(std::string& room_name, std::pair<int, s
 unsigned int SqlService::DeleteMachineRoom(std::string& room_name)
 {
 	unsigned int ret = 0;
-	sql::ResultSet* res = nullptr;
-	std::string sql_for_confirm_no_people_use = "select count(" MH_UID ") user_count"
-		" from " + room_name +
-		" whre " MH_UID " is not null";
-	int people_on_use = 0;
-	BDEBUG(sql_for_confirm_no_people_use);
-
-	// 计算有多少人正在使用
-	try
-	{
-		res = p_stat_->executeQuery(sql_for_confirm_no_people_use);
-		while (res->next()) {
-			people_on_use = res->getInt("use_count");
-		}
-		delete res;
-		if (people_on_use != 0)
-			ret = 1;
+	unsigned int people_on_use = this->GetPeopleOnUseMachine(room_name);
+	if (people_on_use == -1) {			// 为-1，则出现查找错误
+		ret = 2;
 	}
-	catch (const sql::SQLException& e)
-	{
-		BDEBUG(e.what());
-	} 
+	else if (people_on_use > 0) {		// >0，说明还有人再用
+		ret = 1;
+	}
 
 	if (ret != 0)			// 如果还有人使用，就返回，不执行后续删除操作
 		return ret;
 
 	std::string sql_for_delete_table = "drop table " + room_name;
 	std::string sql_for_delete_table_record = "delete from " MACHINE_ROOM_TABLE " where " MR_NAME "='" + room_name + "'";
+	
 	try
 	{
 		p_stat_->execute(sql_for_delete_table);
@@ -509,6 +507,35 @@ unsigned int SqlService::DeleteMachineRoom(std::string& room_name)
 	catch (const sql::SQLException& e)
 	{
 		ret = 2;
+		BDEBUG(e.what());
+	}
+
+	return ret;
+}
+
+/// @brief 统计机房正在使用人数
+/// @param room_name 机房名
+/// @return 人数>=0 ，如果人数==-1，则查找错误
+unsigned int SqlService::GetPeopleOnUseMachine(std::string& room_name)
+{
+	unsigned int ret = -1;
+	sql::ResultSet* res = nullptr;
+	std::string sql_for_confirm_no_people_use = "select count(" MH_UID ") ucount"
+		" from " + room_name +
+		" where " MH_UID " is not null";
+
+	BDEBUG(sql_for_confirm_no_people_use);
+	// 计算有多少人正在使用
+	try
+	{
+		res = p_stat_->executeQuery(sql_for_confirm_no_people_use);
+		while (res->next()) {
+			ret = res->getInt("ucount");
+		}
+		delete res;
+	}
+	catch (const sql::SQLException& e)
+	{
 		BDEBUG(e.what());
 	}
 

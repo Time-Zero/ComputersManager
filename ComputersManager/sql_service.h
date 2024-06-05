@@ -90,6 +90,7 @@ public:
 	std::vector<std::string> GetRoomInfo(std::string& room_name);
 	unsigned int ModifyRoomInfo(std::string& room_name, std::pair<int, std::string> new_info);
 	unsigned int DeleteMachineRoom(std::string& room_name);
+	unsigned int GetPeopleOnUseMachine(std::string& room_name);
 
 
 private:
@@ -100,6 +101,5 @@ private:
 	sql::Statement* p_stat_;*/
 	std::shared_ptr<sql::Connection> p_conn_;				// sql 连接
 	std::shared_ptr<sql::Statement> p_stat_;				// autocommit
-	std::shared_ptr<sql::Statement> p_stat_transaction_;	// 事务
 };
 

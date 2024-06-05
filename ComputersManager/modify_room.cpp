@@ -60,6 +60,9 @@ void ModifyRoom::on_click_pushbutton_confirm()
 	if (ret == 1) {
 		QMessageBox::warning(this, QStringLiteral("错误"), QStringLiteral("修改失败，未知错误"));
 	}
+	else if (ret == 2) {
+		QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("机房还有人使用，无法停用"));
+	}
 	else {
 		QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("修改成功"));
 		emit signal_modify_finish();
