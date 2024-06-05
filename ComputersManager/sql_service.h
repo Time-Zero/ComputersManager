@@ -88,6 +88,9 @@ public:
 	unsigned int ChangInfo(UserInfo& user_info); 
 	unsigned int CreateRoom(MachineInfo& machine_info);
 	std::vector<std::string> GetRoomInfo(std::string& room_name);
+	unsigned int ModifyRoomInfo(std::string& room_name, std::pair<int, std::string> new_info);
+	unsigned int DeleteMachineRoom(std::string& room_name);
+
 
 private:
 	SqlService(std::string ip = SQL_IP, std::string user = SQL_USER, std::string password = SQL_PASSWORD);

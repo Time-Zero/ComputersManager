@@ -22,6 +22,7 @@ ComputersManager::ComputersManager(QWidget *parent)
     connect(ui.pushButton_search_user, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_search_user);
     connect(ui.pushButton_create_room, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_create_room);
     connect(ui.pushButton_room_manager, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_room_manager);
+    connect(ui.pushButton_delete_room, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_delete_room);
     p_login_window_ = new LoginWindow();
     connect(p_login_window_, &LoginWindow::signal_login, this, &ComputersManager::slot_login);
     p_login_window_->show();
@@ -117,6 +118,7 @@ void ComputersManager::slot_login(std::string userid)
     // 只有超级管理员允许创建机房
     if (user_info_.permission != SADMIN) {
         ui.pushButton_create_room->setEnabled(false);
+        ui.pushButton_delete_room->setEnabled(false);       //只有超级管理员允许删除机房
     }
 
     this->show();
@@ -305,13 +307,43 @@ void ComputersManager::on_click_pushbutton_room_manager()
         return;
     }
 
-    //TODO:添加机房修改窗口
-    ModifyRoom* modify_room_window = new ModifyRoom(room_name, user_info_.permission, nullptr);
+    ModifyRoom* modify_room_window = new ModifyRoom(room_name, nullptr);
     connect(modify_room_window, &ModifyRoom::signal_modify_finish, this, [=]() {
         on_click_toolbutton_room();
         delete modify_room_window;
         });
     modify_room_window->show();
+}
+
+void ComputersManager::on_click_pushbutton_delete_room()
+{
+    QModelIndex index = ui.tableView_rooms->currentIndex();
+    int row = index.row();
+    if (row == -1) {
+        QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("请先选择要操作的机房"));
+        return;
+    }
+
+    auto ret_button = QMessageBox::warning(this, QStringLiteral("警告"), QStringLiteral("确认删除机房?"), QMessageBox::Ok | QMessageBox::Cancel);
+    if (ret_button == QMessageBox::Cancel)
+        return;
+
+    QStandardItemModel* model = static_cast<QStandardItemModel*>(ui.tableView_rooms->model());
+    std::string room_name = model->index(row, TABLE_ROOM_NAME, QModelIndex()).data().toString().toStdString();
+    unsigned int ret = SqlService::GetInstance().DeleteMachineRoom(room_name);
+    if (ret == 0) {
+        QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("删除成功"),QMessageBox::Ok);
+    }
+    else if(ret == 1){
+        QMessageBox::information(this, QStringLiteral("错误"), QStringLiteral("无法删除，还有人在使用机房"), QMessageBox::Ok);
+        return;
+    }
+    else {
+        QMessageBox::information(this, QStringLiteral("错误"), QStringLiteral("发生了未知错误"), QMessageBox::Ok);
+        return;
+    }
+
+    on_click_toolbutton_room();
 }
 
 void ComputersManager::on_click_tableview_user(const QModelIndex& index)

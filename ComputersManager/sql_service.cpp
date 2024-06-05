@@ -430,3 +430,87 @@ std::vector<std::string> SqlService::GetRoomInfo(std::string& room_name)
 
 	return ret;
 }
+
+unsigned int SqlService::ModifyRoomInfo(std::string& room_name, std::pair<int, std::string> new_info)
+{
+	unsigned ret = 0;
+	//改管理员
+	std::string sql;
+	if (new_info.first == -1 && !new_info.second.empty()) {
+		sql = "update " MACHINE_ROOM_TABLE
+			" set " MR_MANAGER "='" + new_info.second + "'"
+			" where " MR_NAME "='" + room_name + "'";
+	}
+	else if (new_info.first != -1 && new_info.second.empty()) {			// 改状态
+		sql = "update " MACHINE_ROOM_TABLE
+			" set " MR_STATUS "=" + std::to_string(new_info.first) +
+			" where " MR_NAME "='" + room_name + "'";
+	}
+	else {				// 两个都改
+		sql = "update " MACHINE_ROOM_TABLE
+			" set " MR_STATUS "=" + std::to_string(new_info.first) + ","
+			MR_MANAGER "='" + new_info.second  + "'"
+			" where " MR_NAME "='" + room_name + "'";
+	}
+	BDEBUG(sql);
+
+	try
+	{
+		p_stat_->execute(sql);
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+		ret = 1;
+	}
+
+	return ret;
+}
+
+/// @brief 删除机房
+/// @param room_name 机房名
+/// @return 0:正常删除 1：机房还有人在用 2：未知错误
+unsigned int SqlService::DeleteMachineRoom(std::string& room_name)
+{
+	unsigned int ret = 0;
+	sql::ResultSet* res = nullptr;
+	std::string sql_for_confirm_no_people_use = "select count(" MH_UID ") user_count"
+		" from " + room_name +
+		" whre " MH_UID " is not null";
+	int people_on_use = 0;
+	BDEBUG(sql_for_confirm_no_people_use);
+
+	// 计算有多少人正在使用
+	try
+	{
+		res = p_stat_->executeQuery(sql_for_confirm_no_people_use);
+		while (res->next()) {
+			people_on_use = res->getInt("use_count");
+		}
+		delete res;
+		if (people_on_use != 0)
+			ret = 1;
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+	} 
+
+	if (ret != 0)			// 如果还有人使用，就返回，不执行后续删除操作
+		return ret;
+
+	std::string sql_for_delete_table = "drop table " + room_name;
+	std::string sql_for_delete_table_record = "delete from " MACHINE_ROOM_TABLE " where " MR_NAME "='" + room_name + "'";
+	try
+	{
+		p_stat_->execute(sql_for_delete_table);
+		p_stat_->execute(sql_for_delete_table_record);
+	}
+	catch (const sql::SQLException& e)
+	{
+		ret = 2;
+		BDEBUG(e.what());
+	}
+
+	return ret;
+}

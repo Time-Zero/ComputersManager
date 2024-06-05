@@ -54,6 +54,7 @@ private:
     void on_click_pushbutton_search_user();
     void on_click_pushbutton_create_room();
     void on_click_pushbutton_room_manager();
+    void on_click_pushbutton_delete_room();
     void on_click_tableview_user(const QModelIndex& index);
 
 private:
