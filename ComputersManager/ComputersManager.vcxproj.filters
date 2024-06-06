@@ -67,6 +67,12 @@
     <ClCompile Include="modify_room.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="add_machine_winodw.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="modify_machine_window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sql_service.h">
@@ -92,6 +98,12 @@
     <QtMoc Include="modify_room.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="add_machine_winodw.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="modify_machine_window.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="login_window.ui">
@@ -107,6 +119,12 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="modify_room.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="add_machine_winodw.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="modify_machine_window.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

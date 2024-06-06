@@ -69,6 +69,18 @@ typedef struct MachineInfo {
 	unsigned int machine_num = 0;
 } MachineInfo;
 
+typedef struct Machine {
+	int id = 0;
+	int status = 0;
+	std::string cpu = "";
+	std::string ram = "";
+	std::string rom = "";
+	std::string gpu = "";
+	std::string uid = "";
+	std::string mh_sdata = "";
+	std::string uname = "";
+} Machine;
+
 class SqlService
 {
 public:
@@ -77,20 +89,24 @@ public:
 
 	static SqlService& GetInstance();
 
-	void GetUserInfo(UserInfo& user_info);
-	void GetManagerInfo(UserInfo& user_info);
-	std::string GetUserPassword(std::string& userid);
-	std::string GetUserName(std::string& userid, unsigned int userpermission);
-	unsigned int Register(UserInfo& user_info);
-	unsigned int ModifyInfo(UserInfo& user_info);
-	std::queue<UserInfo> GetUserList(UserInfo& user_info);
-	std::vector<std::vector<std::string>> GetRoomList();
-	unsigned int ChangInfo(UserInfo& user_info); 
-	unsigned int CreateRoom(MachineInfo& machine_info);
-	std::vector<std::string> GetRoomInfo(std::string& room_name);
-	unsigned int ModifyRoomInfo(std::string& room_name, std::pair<int, std::string> new_info);
-	unsigned int DeleteMachineRoom(std::string& room_name);
-	unsigned int GetPeopleOnUseMachine(std::string& room_name);
+	void GetUserInfo(UserInfo& user_info);							//获取用户信息，登录后主页显示用的
+	void GetManagerInfo(UserInfo& user_info);						//主要是为了查权限
+	std::string GetUserPassword(std::string& userid);				//获取用户密码
+	std::string GetUserName(std::string& userid, unsigned int userpermission);			// 获取用户名，设置管理员用的，只能返回权限比自己小的人
+	unsigned int Register(UserInfo& user_info);					// 注册用的
+	unsigned int ModifyInfo(UserInfo& user_info);				// 自己主动修改信息
+	std::queue<UserInfo> GetUserList(UserInfo& user_info);			// 获取用户列表
+	std::vector<std::vector<std::string>> GetRoomList();			//机房列表
+	unsigned int ChangInfo(UserInfo& user_info);					// 管理员修改用户信息
+	unsigned int CreateRoom(MachineInfo& machine_info);				// 创建机房
+	std::vector<std::string> GetRoomInfo(std::string& room_name);				//获取机房信息
+	unsigned int ModifyRoomInfo(std::string& room_name, std::pair<int, std::string> new_info);		// 修改机房信息
+	unsigned int DeleteMachineRoom(std::string& room_name);				// 删除机房
+	unsigned int GetPeopleOnUseMachine(std::string& room_name);			// 获取正在使用指定机房的人数
+	std::queue<Machine> GetMachines(std::string& room_name);			// 获取电脑列表
+	unsigned int DeleteMachine(std::string& machine_id, std::string& machine_room);			// 删除电脑
+	unsigned int AddMachine(std::string& room_name, Machine& machine);		// 添加电脑
+	int GetMachineStatus(std::string& room_name, std::string& machine_id);
 
 
 private:

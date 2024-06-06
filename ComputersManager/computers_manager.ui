@@ -332,9 +332,45 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="page_machine_room">
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <item>
+        <widget class="QTableView" name="tableView_machines"/>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget_6" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QPushButton" name="pushButton_machine_manager">
+            <property name="text">
+             <string>管理</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_machine_add">
+            <property name="text">
+             <string>添加</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_machine_delete">
+            <property name="text">
+             <string>删除</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
+  <zorder>stackedWidget</zorder>
+  <zorder>widget_menu</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>

@@ -541,3 +541,118 @@ unsigned int SqlService::GetPeopleOnUseMachine(std::string& room_name)
 
 	return ret;
 }
+
+std::queue<Machine> SqlService::GetMachines(std::string& room_name)
+{
+	std::queue<Machine> ret;
+	sql::ResultSet* res = nullptr;
+	std::string sql = "select "
+		MH_ID ","
+		MH_STATUS ","
+		MH_CPU ","
+		MH_RAM ","
+		MH_ROM ","
+		MH_GPU ","
+		MH_UID ","
+		UI_NAME " from " + room_name + " left join " USER_INFO_TABLE " on " UI_ID "=" MH_ID;
+	BDEBUG(sql);
+	
+	try
+	{
+		res = p_stat_->executeQuery(sql);
+		while (res->next()) {
+			Machine machine;
+			machine.id = res->getInt(MH_ID);
+			machine.status = res->getInt(MH_STATUS);
+			machine.cpu = res->getString(MH_CPU);
+			machine.ram = res->getString(MH_RAM);
+			machine.rom = res->getString(MH_ROM);
+			machine.gpu = res->getString(MH_GPU);
+			machine.uid = res->getString(MH_UID);
+			machine.uname = res->getString(UI_NAME);
+
+			ret.push(machine);
+		}
+
+		delete res;
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+	}
+						
+	return ret;
+}
+
+unsigned int SqlService::DeleteMachine(std::string& machine_id, std::string& machine_room)
+{
+	unsigned int ret = 0;
+	std::string sql = "delete from " + machine_room + " where " MH_ID " = " + machine_id;
+	BDEBUG(sql);
+
+	try
+	{
+		p_stat_->execute(sql);
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+		ret = 1;
+	}
+
+	return ret;
+}
+
+unsigned int SqlService::AddMachine(std::string& room_name, Machine& machine)
+{
+	unsigned int ret = 0;
+	std::string sql;
+	if (machine.gpu.empty()) {
+		sql = "insert into " + room_name + "(" MH_CPU "," MH_RAM "," MH_ROM ") values('" + machine.cpu + "','" +
+			machine.ram + "','" + machine.rom + "')";
+	}
+	else {
+		sql = "insert into " + room_name + "(" MH_CPU "," MH_RAM "," MH_ROM "," MH_GPU ") values('" + machine.cpu + "','" +
+			machine.ram + "','" + machine.rom + "','" + machine.gpu + "')";
+	}
+
+	BDEBUG(sql);
+	try
+	{
+		p_stat_->execute(sql);
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+		ret = 1;
+	}
+	
+	return ret;
+}
+
+/// @brief 返回电脑状态
+/// @param room_name 机房名
+/// @param machine_id 电脑编号
+/// @return	0：停用，1：空闲，2：使用，-1：未知错误
+int SqlService::GetMachineStatus(std::string& room_name, std::string& machine_id)
+{
+	int ret = 0;
+	sql::ResultSet* res = nullptr;
+	std::string sql = "select " MH_STATUS " from " + room_name + " where " MH_ID "=" + machine_id;
+	BDEBUG(sql);
+
+	try
+	{
+		res = p_stat_->executeQuery(sql);
+		while (res->next()) {
+			ret = res->getInt(MH_STATUS);
+		}
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+		ret = -1;			
+	}
+
+	return ret;
+}

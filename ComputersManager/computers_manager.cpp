@@ -2,7 +2,8 @@
 
 ComputersManager::ComputersManager(QWidget *parent)
     : QWidget(parent),
-    p_modify_window_(nullptr)
+    p_modify_window_(nullptr),
+    current_machine_room("")
 {
     ui.setupUi(this);
     QFile file(":/ComputersManager/computer_manager.qss");
@@ -13,6 +14,7 @@ ComputersManager::ComputersManager(QWidget *parent)
     
     UserTableInit();
     RoomTableInit();
+    MachinesTableInit();
 
     connect(ui.toolButton_mainpage, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_mainpage);
     connect(ui.toolButton_user, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_user);
@@ -23,6 +25,9 @@ ComputersManager::ComputersManager(QWidget *parent)
     connect(ui.pushButton_create_room, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_create_room);
     connect(ui.pushButton_room_manager, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_room_manager);
     connect(ui.pushButton_delete_room, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_delete_room);
+    connect(ui.pushButton_machine_delete, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_machine_delete);
+    connect(ui.pushButton_machine_manager, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_machine_manager);
+    connect(ui.pushButton_machine_add, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_machine_add);
     p_login_window_ = new LoginWindow();
     connect(p_login_window_, &LoginWindow::signal_login, this, &ComputersManager::slot_login);
     p_login_window_->show();
@@ -90,7 +95,72 @@ void ComputersManager::RoomTableInit()
     for (int i = 0; i < header_size; i++) {
         ui.tableView_rooms->setColumnWidth(i, col_width);
     }
+    connect(ui.tableView_rooms, &QTableView::doubleClicked, this, &ComputersManager::on_click_tableview_room);
+}
 
+void ComputersManager::MachinesTableInit()
+{
+    QStandardItemModel* model = new QStandardItemModel(this);
+    QList<QString> table_header{ "编号","状态","CPU","Ram","Rom","Gpu","使用者ID","姓名"};
+    model->setHorizontalHeaderLabels(QStringList(table_header));
+    ui.tableView_machines->verticalHeader()->setVisible(false);
+    ui.tableView_machines->setModel(model);         
+    ui.tableView_machines->setFocusPolicy(Qt::NoFocus);             //选中没有虚线框
+    ui.tableView_machines->setFrameShape(QFrame::NoFrame);          // 没有边框
+    ui.tableView_machines->setAlternatingRowColors(true);           // 交替颜色
+    ui.tableView_machines->setSelectionBehavior(QAbstractItemView::SelectRows); // 选中行为为选中行
+    int header_size = table_header.size();
+    int col_width = TABLE_WIDTH / header_size;
+    for (int i = 0; i < header_size; i++) {
+        ui.tableView_machines->setColumnWidth(i, col_width);
+    }
+}
+
+void ComputersManager::RefreshMachineTable(QStandardItemModel* model, std::string& room_name)
+{
+    TableClear(model);
+    auto machines = SqlService::GetInstance().GetMachines(room_name);
+    while (!machines.empty()) {
+        int row = model->rowCount();
+        Machine machine = machines.front();
+        machines.pop();
+
+        QStandardItem* id = new QStandardItem(QString::fromStdString(std::to_string(machine.id)));
+        id->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        model->setItem(row, MACHINE_ID, id);
+
+        std::string str_status;
+        if (machine.status == 0) str_status = "停用";
+        else if (machine.status == 1) str_status = "空闲";
+        else str_status = "使用";
+        QStandardItem* status = new QStandardItem(QString::fromStdString(str_status));
+        status->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        model->setItem(row, MACHINE_STATUS, status);
+
+        QStandardItem* cpu = new QStandardItem(QString::fromStdString(machine.cpu));
+        cpu->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        model->setItem(row, MACHINE_CPU, cpu);
+
+        QStandardItem* ram = new QStandardItem(QString::fromStdString(machine.ram));
+        ram->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        model->setItem(row, MACHINE_RAM, ram);
+
+        QStandardItem* rom = new QStandardItem(QString::fromStdString(machine.rom));
+        rom->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        model->setItem(row, MACHINE_ROM, rom);
+
+        QStandardItem* gpu = new QStandardItem(QString::fromStdString(machine.gpu));
+        gpu->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        model->setItem(row, MACHINE_GPU, gpu);
+
+        QStandardItem* uid = new QStandardItem(QString::fromStdString(machine.uid));
+        uid->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        model->setItem(row, MACHINE_UID, uid);
+
+        QStandardItem* uname = new QStandardItem(QString::fromStdString(machine.uname));
+        uname->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        model->setItem(row, MACHINE_NAME, uname);
+    }
 }
 
 void ComputersManager::slot_login(std::string userid)
@@ -115,10 +185,28 @@ void ComputersManager::slot_login(std::string userid)
         ui.toolButton_backup->setVisible(true);
     }
 
-    // 只有超级管理员允许创建机房
+    // 只有超级管理员允许创建机房和删除机房
     if (user_info_.permission != SADMIN) {
         ui.pushButton_create_room->setEnabled(false);
-        ui.pushButton_delete_room->setEnabled(false);       //只有超级管理员允许删除机房
+        ui.pushButton_delete_room->setEnabled(false);       
+        ui.pushButton_room_manager->setEnabled(false);
+    }
+    else {
+        ui.pushButton_create_room->setEnabled(true);
+        ui.pushButton_delete_room->setEnabled(true);
+        ui.pushButton_room_manager->setEnabled(true);
+    }
+
+    //只有管理员有权限删除和管理机器
+    if (user_info_.permission < ADMIN) {
+        ui.pushButton_machine_manager->setEnabled(false);
+        ui.pushButton_machine_delete->setEnabled(false);
+        ui.pushButton_machine_add->setEnabled(false);
+    }
+    else {
+        ui.pushButton_machine_manager->setEnabled(true);
+        ui.pushButton_machine_delete->setEnabled(true);
+        ui.pushButton_machine_add->setEnabled(true);
     }
 
     this->show();
@@ -346,6 +434,61 @@ void ComputersManager::on_click_pushbutton_delete_room()
     on_click_toolbutton_room();
 }
 
+void ComputersManager::on_click_pushbutton_machine_manager()
+{
+    int row = ui.tableView_machines->currentIndex().row();
+    if (row == -1) {
+        QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("请先选择要操作的设备"));
+        return;
+    }
+
+    QStandardItemModel* model = static_cast<QStandardItemModel*>(ui.tableView_machines->model());
+    std::string machine_id = model->index(row, MACHINE_ID, QModelIndex()).data().toString().toStdString();
+
+    ModifyMachineWindow* modify_machine_window = new ModifyMachineWindow(current_machine_room, machine_id);
+    connect(modify_machine_window, &ModifyMachineWindow::signal_modify_finish, this, [=]() {
+        delete modify_machine_window;
+        });
+    modify_machine_window->show();
+}
+
+void ComputersManager::on_click_pushbutton_machine_add()
+{
+    AddMachineWinodw* add_machine_window = new AddMachineWinodw(current_machine_room);
+    connect(add_machine_window, &AddMachineWinodw::signal_modify_finish, this, [=]() {
+        QStandardItemModel* model = static_cast<QStandardItemModel*>(ui.tableView_machines->model());
+        RefreshMachineTable(model, current_machine_room);           // 刷新表
+        delete add_machine_window;          //删除添加窗口
+        });
+
+    add_machine_window->show();
+}
+
+void ComputersManager::on_click_pushbutton_machine_delete()
+{
+    int row = ui.tableView_machines->currentIndex().row();
+    if (row == -1) {
+        QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("请先选择要操作的设备"));
+        return;
+    }
+
+    auto button_ret = QMessageBox::question(this, QStringLiteral("提示"), QStringLiteral("确认要删除吗"), QMessageBox::Ok | QMessageBox::Cancel);
+    if (button_ret != QMessageBox::Ok)
+        return;
+
+    QStandardItemModel* model = static_cast<QStandardItemModel*>(ui.tableView_machines->model());
+    std::string machine_id = model->index(row, MACHINE_ID, QModelIndex()).data().toString().toStdString();
+    
+    unsigned int ret = SqlService::GetInstance().DeleteMachine(machine_id, current_machine_room);
+    if (ret == 0) {
+        QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("删除成功"));
+        RefreshMachineTable(model, current_machine_room);           //刷新一下表的显示
+    }
+    else {
+        QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("删除失败，未知错误"));
+    }
+}
+
 void ComputersManager::on_click_tableview_user(const QModelIndex& index)
 {
     int row = index.row();
@@ -358,4 +501,23 @@ void ComputersManager::on_click_tableview_user(const QModelIndex& index)
         delete change_window;
         });
     change_window->show();
+}
+
+void ComputersManager::on_click_tableview_room(const QModelIndex& index)
+{
+    int row = index.row();
+    QStandardItemModel* model = static_cast<QStandardItemModel*>(ui.tableView_rooms->model());
+    std::string room_name = model->index(row, TABLE_ROOM_NAME, QModelIndex()).data().toString().toStdString();
+    std::string room_status = model->index(row, TABLE_ROOM_STATUES, QModelIndex()).data().toString().toStdString();
+    if (room_status != "启用") {
+        QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("该机房已被停用"));
+        return;
+    }
+
+
+    current_machine_room = room_name;                   //记录一下现在打开的机房，用于后面的机房电脑表的定位
+    model = static_cast<QStandardItemModel*>(ui.tableView_machines->model());
+    RefreshMachineTable(model, room_name);
+    
+    ui.stackedWidget->setCurrentIndex(MACHINE_ROOM_PAGE); 
 }

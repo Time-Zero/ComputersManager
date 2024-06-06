@@ -102,10 +102,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="add_machine_winodw.cpp" />
     <ClCompile Include="change_userinfo.cpp" />
     <ClCompile Include="common_tools.cpp" />
     <ClCompile Include="create_room_window.cpp" />
     <ClCompile Include="login_window.cpp" />
+    <ClCompile Include="modify_machine_window.cpp" />
     <ClCompile Include="modify_room.cpp" />
     <ClCompile Include="modify_window.cpp" />
     <ClCompile Include="sql_service.cpp" />
@@ -115,6 +117,7 @@
     <None Include="login_windows.qss" />
     <None Include="modify_window.qss" />
     <QtRcc Include="computersmanager.qrc" />
+    <QtUic Include="add_machine_winodw.ui" />
     <QtUic Include="change_userinfo.ui" />
     <QtUic Include="computers_manager.ui" />
     <QtMoc Include="computers_manager.h" />
@@ -123,17 +126,20 @@
     <None Include="ComputersManager.ico" />
     <QtUic Include="create_room_window.ui" />
     <QtUic Include="login_window.ui" />
+    <QtUic Include="modify_machine_window.ui" />
     <QtUic Include="modify_room.ui" />
     <QtUic Include="modify_window.ui" />
     <ResourceCompile Include="ComputersManager.rc" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="change_userinfo.h" />
+    <QtMoc Include="add_machine_winodw.h" />
     <ClInclude Include="common_tools.h" />
     <QtMoc Include="login_window.h" />
     <QtMoc Include="modify_window.h" />
     <QtMoc Include="create_room_window.h" />
     <QtMoc Include="modify_room.h" />
+    <QtMoc Include="modify_machine_window.h" />
     <ClInclude Include="sql_service.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
