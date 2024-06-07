@@ -9,6 +9,7 @@
 #include <thread>
 #include <queue>
 #include <memory>
+#include <vector>
 
 #define SQL_IP "tcp://172.30.131.79:3306/CMDB"
 #define SQL_USER "admin"
@@ -107,6 +108,7 @@ public:
 	unsigned int DeleteMachine(std::string& machine_id, std::string& machine_room);			// 删除电脑
 	unsigned int AddMachine(std::string& room_name, Machine& machine);		// 添加电脑
 	int GetMachineStatus(std::string& room_name, std::string& machine_id);
+	int ModifyMachineInfo(Machine& machine, std::string& room_name);
 
 
 private:

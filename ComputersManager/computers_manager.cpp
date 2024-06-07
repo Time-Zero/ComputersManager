@@ -36,6 +36,8 @@ ComputersManager::ComputersManager(QWidget *parent)
 ComputersManager::~ComputersManager()
 {}
 
+
+/// @brief 初始化主页
 void ComputersManager::InitMainPage()
 {
     std::future<void> fut = std::async(std::launch::async, [&]() {
@@ -60,6 +62,7 @@ void ComputersManager::InitMainPage()
     }
 }
 
+/// @brief 初始化用户表
 void ComputersManager::UserTableInit()
 {
     ui.lineEdit_search_user->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]+$")));
@@ -80,6 +83,7 @@ void ComputersManager::UserTableInit()
     connect(ui.tableView_user, &QAbstractItemView::doubleClicked, this, &ComputersManager::on_click_tableview_user);
 }
 
+/// @brief 初始化机房表
 void ComputersManager::RoomTableInit()
 {
     QStandardItemModel* room_table_model = new QStandardItemModel(this);
@@ -98,6 +102,8 @@ void ComputersManager::RoomTableInit()
     connect(ui.tableView_rooms, &QTableView::doubleClicked, this, &ComputersManager::on_click_tableview_room);
 }
 
+
+/// @brief 初始化机器表
 void ComputersManager::MachinesTableInit()
 {
     QStandardItemModel* model = new QStandardItemModel(this);
@@ -116,6 +122,9 @@ void ComputersManager::MachinesTableInit()
     }
 }
 
+/// @brief 刷新机器表
+/// @param model 表的模式
+/// @param room_name 机房名字
 void ComputersManager::RefreshMachineTable(QStandardItemModel* model, std::string& room_name)
 {
     TableClear(model);
@@ -163,6 +172,8 @@ void ComputersManager::RefreshMachineTable(QStandardItemModel* model, std::strin
     }
 }
 
+/// @brief 登录槽函数
+/// @param userid 用户的id
 void ComputersManager::slot_login(std::string userid)
 {
     delete p_login_window_;
@@ -213,6 +224,8 @@ void ComputersManager::slot_login(std::string userid)
     ui.stackedWidget->setCurrentIndex(MAIN_PAGE);
 }
 
+
+/// @brief 主页键点击的槽函数
 void ComputersManager::on_click_toolbutton_mainpage()
 {
     if (ui.stackedWidget->currentIndex() == MAIN_PAGE)
@@ -221,6 +234,8 @@ void ComputersManager::on_click_toolbutton_mainpage()
     InitMainPage();
 }
 
+
+/// @brief 用户键点击的槽函数
 void ComputersManager::on_click_toolbutton_user()
 {
     /*if (ui.stackedWidget->currentIndex() == USER_CONTROL_PAGE)
@@ -448,6 +463,7 @@ void ComputersManager::on_click_pushbutton_machine_manager()
     ModifyMachineWindow* modify_machine_window = new ModifyMachineWindow(current_machine_room, machine_id);
     connect(modify_machine_window, &ModifyMachineWindow::signal_modify_finish, this, [=]() {
         delete modify_machine_window;
+        RefreshMachineTable(model, current_machine_room);
         });
     modify_machine_window->show();
 }

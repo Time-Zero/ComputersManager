@@ -656,3 +656,63 @@ int SqlService::GetMachineStatus(std::string& room_name, std::string& machine_id
 
 	return ret;
 }
+
+int SqlService::ModifyMachineInfo(Machine& machine, std::string& room_name)
+{
+	int ret = 0;
+	std::vector<std::string> sql_vec;
+	
+	if (!machine.cpu.empty()) {
+		std::string sql = "update " + room_name + 
+			" set " MH_CPU "='" + machine.cpu + 
+			"' where " MH_ID "=" + std::to_string(machine.id);
+		BDEBUG(sql);
+		sql_vec.emplace_back(sql);
+	}
+
+	if (!machine.ram.empty()) {
+		std::string sql = "update " + room_name +
+			" set " MH_RAM "='" + machine.ram +
+			"' where " MH_ID "=" + std::to_string(machine.id);
+		BDEBUG(sql);
+		sql_vec.emplace_back(sql);
+	}
+
+	if (!machine.rom.empty()) {
+		std::string sql = "update " + room_name +
+			" set " MH_ROM "='" + machine.rom +
+			"' where " MH_ID "=" + std::to_string(machine.id);
+		BDEBUG(sql);
+		sql_vec.emplace_back(sql);
+	}
+
+	if (!machine.gpu.empty()) {
+		std::string sql = "update " + room_name +
+			" set " MH_GPU "='" + machine.gpu +
+			"' where " MH_ID "=" + std::to_string(machine.id);
+		BDEBUG(sql);
+		sql_vec.emplace_back(sql);
+	}
+
+	if (machine.status != -1) {
+		std::string sql = "update " + room_name +
+			" set " MH_STATUS "=" + std::to_string(machine.status) +
+			" where " MH_ID "=" + std::to_string(machine.id);
+		BDEBUG(sql);
+		sql_vec.emplace_back(sql);
+	}
+
+	try
+	{
+		for (auto sql : sql_vec) {
+			p_stat_->executeUpdate(sql);
+		}
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+		ret = -1;
+	}
+
+	return ret;
+}

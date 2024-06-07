@@ -28,4 +28,5 @@ private:
 	Ui::ModifyMachineWindowClass ui;
 	std::string room_name_;
 	std::string machine_id_;
+	int row_status;
 };
