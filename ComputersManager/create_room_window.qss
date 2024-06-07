@@ -2,7 +2,7 @@
     background-color: white;
 }
 
-QWidget#widget_machine_num, #widget_user_info {
+QWidget#widget_machine_num, #widget_user_info, #widget_fees {
     border-radius: 3px;
     border: 1px solid skyblue;
 }
@@ -82,5 +82,27 @@ QSpinBox {
         }
 
         QSpinBox::up-button:pressed, QSpinBox::down-button:pressed {
+            background-color: #4682B4; /* 当按钮被按下时，最深的天蓝色 */
+        }
+
+QDoubleSpinBox {
+    background-color: #B2EBF2; /* 浅天蓝色 */
+    border: 2px solid #87CEEB; /* 更深的天蓝色作为边框 */
+    border-radius: 5px; /* 可选：圆角 */
+    padding: 2px; /* 可选：内部空间 */
+    color: #000000; /* 文本颜色，黑色以便于对比 */
+    selection-background-color: #87CEEB; /* 选中文本的颜色 */
+}
+
+    QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
+        background-color: #87CEEB; /* 更深的天蓝色作为按钮 */
+        border: none; /* 可选：移除边框以便于清晰 */
+    }
+
+        QDoubleSpinBox::up-button:hover, QDoubleSpinBox::down-button:hover {
+            background-color: #6495ED; /* 当按钮被悬停时，更加深的天蓝色 */
+        }
+
+        QDoubleSpinBox::up-button:pressed, QDoubleSpinBox::down-button:pressed {
             background-color: #4682B4; /* 当按钮被按下时，最深的天蓝色 */
         }

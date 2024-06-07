@@ -32,6 +32,7 @@
 #define MR_NAME "mr_name"
 #define MR_STATUS "mr_status"
 #define MR_MANAGER "mr_manager"
+#define MR_FEES "mr_fees"
 
 #define MH_ID "mh_id"
 #define MH_STATUS "mh_status"
@@ -67,6 +68,7 @@ typedef struct MachineInfo {
 	std::string rom = "";
 	std::string gpu = "";
 	std::string mananger_id = "";
+	double machine_fees = 0;
 	unsigned int machine_num = 0;
 } MachineInfo;
 
@@ -101,9 +103,9 @@ public:
 	unsigned int ChangInfo(UserInfo& user_info);					// 管理员修改用户信息
 	unsigned int CreateRoom(MachineInfo& machine_info);				// 创建机房
 	std::vector<std::string> GetRoomInfo(std::string& room_name);				//获取机房信息
-	unsigned int ModifyRoomInfo(std::string& room_name, std::pair<int, std::string> new_info);		// 修改机房信息
+	int ModifyRoomInfo(std::string& room_name, std::pair<int, std::string> new_info, double fees);		// 修改机房信息
 	unsigned int DeleteMachineRoom(std::string& room_name);				// 删除机房
-	unsigned int GetPeopleOnUseMachine(std::string& room_name);			// 获取正在使用指定机房的人数
+	int GetPeopleOnUseMachine(std::string& room_name);			// 获取正在使用指定机房的人数
 	std::queue<Machine> GetMachines(std::string& room_name);			// 获取电脑列表
 	unsigned int DeleteMachine(std::string& machine_id, std::string& machine_room);			// 删除电脑
 	unsigned int AddMachine(std::string& room_name, Machine& machine);		// 添加电脑

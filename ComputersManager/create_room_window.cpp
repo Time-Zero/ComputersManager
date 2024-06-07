@@ -89,6 +89,14 @@ void CreateRoomWindow::on_click_pushbutton_confirm()
 		return;
 	}
 
+	// 计费获取
+	double fees = ui.doubleSpinBox_fees->value();
+	if (fees == double(0)) {
+		QMessageBox::information(this, QStringLiteral("错误"), QStringLiteral("计费价格不能为零"));
+		ui.doubleSpinBox_fees->setFocus();
+		return;
+	}
+
 	std::string gpu = ui.lineEdit_gpu->text().toStdString();
 	unsigned int machine_num = ui.spinBox_machine_count->value();
 	if (machine_num == 0) {
@@ -97,13 +105,14 @@ void CreateRoomWindow::on_click_pushbutton_confirm()
 		return;
 	}
 
-	on_click_pushbutton_search_manager();
+	on_click_pushbutton_search_manager();			//获取一下用户信息，检验一下设置的人是不是管理员
 	MachineInfo machine_info;
 	machine_info.room_name = room_name;
 	machine_info.cpu = cpu;
 	machine_info.ram = ram;
 	machine_info.rom = rom;
 	machine_info.gpu = gpu;
+	machine_info.machine_fees = fees;
 	machine_info.machine_num = machine_num;
 	machine_info.mananger_id = ui.lineEdit_manager_id->text().toStdString();
 	unsigned int ret = SqlService::GetInstance().CreateRoom(machine_info);

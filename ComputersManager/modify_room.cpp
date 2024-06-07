@@ -18,6 +18,7 @@ ModifyRoom::ModifyRoom(std::string& room_name, QWidget *parent)
 
 	std::vector<std::string> room_info = fut_room_info.get();
 
+	//从数据库中获取状态然后把修改框的状态设置为当前状态 
 	row_status = std::atoi(room_info[0].c_str());
 	ui.comboBox->setCurrentIndex(row_status);
 
@@ -44,23 +45,25 @@ void ModifyRoom::closeEvent(QCloseEvent * e)
 void ModifyRoom::on_click_pushbutton_confirm()
 {
 	std::string manager_id = ui.lineEdit_manager_id->text().toStdString();
+	double fees = ui.doubleSpinBox_fees->value();
 	int status = ui.comboBox->currentIndex();
 	if (manager_id.empty() && status == row_status) {
 		QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("请做出修改后再提交"));
 		return;
 	}
 
-	if (status == row_status) status = -1;
+	if (status == row_status) status = -1;			//如果没有修改状态，状态就是-1
 	
 	// 允许只修改状态
 	if(!manager_id.empty())
 		on_click_pushbutton_search();
-	unsigned int ret = SqlService::GetInstance().ModifyRoomInfo(room_name, { status, manager_id });
+
+	int ret = SqlService::GetInstance().ModifyRoomInfo(room_name, { status, manager_id }, fees);
 	
-	if (ret == 1) {
+	if (ret == -1) {
 		QMessageBox::warning(this, QStringLiteral("错误"), QStringLiteral("修改失败，未知错误"));
 	}
-	else if (ret == 2) {
+	else if (ret == 1) {
 		QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("机房还有人使用，无法停用"));
 	}
 	else {

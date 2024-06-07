@@ -291,6 +291,7 @@ std::vector<std::vector<std::string>> SqlService::GetRoomList()
 	std::string sql = "select " MR_NAME ","
 		MR_STATUS ","
 		MR_MANAGER ","
+		MR_FEES ","
 		UI_NAME
 		" from "
 		MACHINE_ROOM_TABLE ","
@@ -305,6 +306,7 @@ std::vector<std::vector<std::string>> SqlService::GetRoomList()
 			std::vector<std::string> temp;
 			temp.emplace_back(res->getString(MR_NAME));
 			temp.emplace_back(res->getString(MR_STATUS));
+			temp.emplace_back(res->getString(MR_FEES));
 			temp.emplace_back(res->getString(MR_MANAGER));
 			temp.emplace_back(res->getString(UI_NAME));
 			ret.emplace_back(temp);
@@ -368,10 +370,13 @@ unsigned int SqlService::CreateRoom(MachineInfo& machine_info)
 	unsigned int ret = 0;
 	std::string sql_for_room = "insert into " MACHINE_ROOM_TABLE
 		"(" MR_NAME ","
-		MR_MANAGER ")"
+		MR_MANAGER ","
+		MR_FEES
+		")"
 		" values ("
 		"'" + machine_info.room_name + "',"
-		"'" + machine_info.mananger_id + "')";
+		"'" + machine_info.mananger_id + "'," 
+		"'" + std::to_string(machine_info.machine_fees) + "')";
 
 	std::string sql_for_machine = "call " PROCEDURE_CREATE_ROOM_MACHINE "('" + machine_info.room_name + "',"
 		+ std::to_string(machine_info.machine_num) + ",'" + machine_info.cpu + "','"
@@ -436,45 +441,51 @@ std::vector<std::string> SqlService::GetRoomInfo(std::string& room_name)
 /// @brief 修改机房信息
 /// @param room_name 机房名
 /// @param new_info 要修改的数据
-/// @return 0：修改成功 1：未知错误 2：由于有人正在使用，所以无法停用 
-unsigned int SqlService::ModifyRoomInfo(std::string& room_name, std::pair<int, std::string> new_info)
+/// @return 0：修改成功 -1：未知错误 1：由于有人正在使用，所以无法停用 
+int SqlService::ModifyRoomInfo(std::string& room_name, std::pair<int, std::string> new_info, double fees)
 {
 	unsigned ret = 0;
-	//改管理员
-	std::string sql;
-	if (new_info.first == -1 && !new_info.second.empty()) {
-		sql = "update " MACHINE_ROOM_TABLE
-			" set " MR_MANAGER "='" + new_info.second + "'"
-			" where " MR_NAME "='" + room_name + "'";
-	}
-	else if (new_info.first != -1 && new_info.second.empty()) {			// 改状态
-		unsigned int people_on_use = this->GetPeopleOnUseMachine(room_name);
-		if (people_on_use == -1)
+	std::vector<std::string> sql_vec;
+
+	if (new_info.first != -1) {	// 需要修改状态
+		int people_on_use = this->GetPeopleOnUseMachine(room_name);
+		if (people_on_use == -1)		// 未知错误
+			return -1;
+		else if (people_on_use > 0)			//   有人还在使用
 			return 1;
-		else if (people_on_use > 0) {
-			ret = 2;
-		}
-		sql = "update " MACHINE_ROOM_TABLE
+
+		std::string sql = "update " MACHINE_ROOM_TABLE
 			" set " MR_STATUS "=" + std::to_string(new_info.first) +
 			" where " MR_NAME "='" + room_name + "'";
+		sql_vec.emplace_back(sql);
 	}
-	else {				// 两个都改
-		sql = "update " MACHINE_ROOM_TABLE
-			" set " MR_STATUS "=" + std::to_string(new_info.first) + ","
-			MR_MANAGER "='" + new_info.second  + "'"
+
+	if (!new_info.second.empty()) {		// 需要修改管理员
+		std::string sql = "update " MACHINE_ROOM_TABLE
+					" set " MR_MANAGER "='" + new_info.second + "'"
+					" where " MR_NAME "='" + room_name + "'";
+		sql_vec.emplace_back(sql);
+	}
+
+	if (fees != double(0)) {
+		std::string sql = "update " MACHINE_ROOM_TABLE
+			" set " MR_FEES "=" + std::to_string(fees) +
 			" where " MR_NAME "='" + room_name + "'";
+		sql_vec.emplace_back(sql);
 	}
-	BDEBUG(sql);
 
 	try
 	{
-		p_stat_->execute(sql);
+		for (auto sql : sql_vec) {
+			p_stat_->executeUpdate(sql);
+		}
 	}
 	catch (const sql::SQLException& e)
 	{
 		BDEBUG(e.what());
-		ret = 1;
+		ret = -1;
 	}
+
 
 	return ret;
 }
@@ -516,9 +527,9 @@ unsigned int SqlService::DeleteMachineRoom(std::string& room_name)
 /// @brief 统计机房正在使用人数
 /// @param room_name 机房名
 /// @return 人数>=0 ，如果人数==-1，则查找错误
-unsigned int SqlService::GetPeopleOnUseMachine(std::string& room_name)
+int SqlService::GetPeopleOnUseMachine(std::string& room_name)
 {
-	unsigned int ret = -1;
+	int ret = -1;
 	sql::ResultSet* res = nullptr;
 	std::string sql_for_confirm_no_people_use = "select count(" MH_UID ") ucount"
 		" from " + room_name +

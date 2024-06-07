@@ -110,6 +110,7 @@
     <ClCompile Include="modify_machine_window.cpp" />
     <ClCompile Include="modify_room.cpp" />
     <ClCompile Include="modify_window.cpp" />
+    <ClCompile Include="rent_machine_window.cpp" />
     <ClCompile Include="sql_service.cpp" />
     <None Include="change_userinfo.qss" />
     <None Include="computer_manager.qss" />
@@ -129,6 +130,7 @@
     <QtUic Include="modify_machine_window.ui" />
     <QtUic Include="modify_room.ui" />
     <QtUic Include="modify_window.ui" />
+    <QtUic Include="rent_machine_window.ui" />
     <ResourceCompile Include="ComputersManager.rc" />
   </ItemGroup>
   <ItemGroup>
@@ -140,6 +142,7 @@
     <QtMoc Include="create_room_window.h" />
     <QtMoc Include="modify_room.h" />
     <QtMoc Include="modify_machine_window.h" />
+    <QtMoc Include="rent_machine_window.h" />
     <ClInclude Include="sql_service.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

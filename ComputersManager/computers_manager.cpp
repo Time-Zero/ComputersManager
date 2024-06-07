@@ -87,7 +87,7 @@ void ComputersManager::UserTableInit()
 void ComputersManager::RoomTableInit()
 {
     QStandardItemModel* room_table_model = new QStandardItemModel(this);
-    QList<QString> room_table_header{ "机房名","状态","管理员ID","管理员姓名" };
+    QList<QString> room_table_header{ "机房名","状态","计费(元/小时)","管理员ID","管理员姓名"};
     room_table_model->setHorizontalHeaderLabels(QStringList(room_table_header));
     ui.tableView_rooms->setModel(room_table_model);
     ui.tableView_rooms->setFocusPolicy(Qt::NoFocus);
@@ -120,6 +120,8 @@ void ComputersManager::MachinesTableInit()
     for (int i = 0; i < header_size; i++) {
         ui.tableView_machines->setColumnWidth(i, col_width);
     }
+
+    connect(ui.tableView_machines, &QTableView::doubleClicked, this, &ComputersManager::on_click_tableview_machine);
 }
 
 /// @brief 刷新机器表
@@ -291,20 +293,24 @@ void ComputersManager::on_click_toolbutton_room()
     for (std::vector<std::string> it : ret) {
         int row = model->rowCount();
 
-        QStandardItem* item_room_name = new QStandardItem(QString::fromStdString(it[0]));
+        QStandardItem* item_room_name = new QStandardItem(QString::fromStdString(it[TABLE_ROOM_NAME]));
         item_room_name->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         model->setItem(row, TABLE_ROOM_NAME, item_room_name);
 
-        std::string str_status = (it[1] == "1") ? "启用" : "停用";
+        std::string str_status = (it[TABLE_ROOM_STATUES] == "1") ? "启用" : "停用";
         QStandardItem* item_room_status = new QStandardItem(QString::fromStdString(str_status));
         item_room_status->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         model->setItem(row, TABLE_ROOM_STATUES, item_room_status);
 
-        QStandardItem* item_room_manager_id = new QStandardItem(QString::fromStdString(it[2]));
+        QStandardItem* item_room_fess = new QStandardItem(QString::fromStdString(it[TABLE_ROOM_FEES]));
+        item_room_status->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        model->setItem(row, TABLE_ROOM_FEES, item_room_fess);
+
+        QStandardItem* item_room_manager_id = new QStandardItem(QString::fromStdString(it[TABLE_ROOM_MANAGER_ID]));
         item_room_manager_id->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         model->setItem(row, TABLE_ROOM_MANAGER_ID, item_room_manager_id);
 
-        QStandardItem* item_room_manager_name = new QStandardItem(QString::fromStdString(it[3]));
+        QStandardItem* item_room_manager_name = new QStandardItem(QString::fromStdString(it[TABLE_ROOM_MANAGER_NAME]));
         item_room_manager_name->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         model->setItem(row, TABLE_ROOM_MANAGER_NAME, item_room_manager_name);
     }
@@ -536,4 +542,20 @@ void ComputersManager::on_click_tableview_room(const QModelIndex& index)
     RefreshMachineTable(model, room_name);
     
     ui.stackedWidget->setCurrentIndex(MACHINE_ROOM_PAGE); 
+}
+
+
+// TODO:待完善的上机窗口
+void ComputersManager::on_click_tableview_machine(const QModelIndex& index)
+{
+    int row = index.row();
+    QStandardItemModel* model = static_cast<QStandardItemModel*>(ui.tableView_machines->model());
+    std::string machine_id = model->index(row, MACHINE_ID, QModelIndex()).data().toString().toStdString();
+    BDEBUG(machine_id);
+
+    RentMachineWindow* rent_machine_window = new RentMachineWindow(current_machine_room ,machine_id);
+    connect(rent_machine_window, &RentMachineWindow::signal_rent_finish, this, [=]() {
+        delete rent_machine_window;
+        });
+    rent_machine_window->show();
 }

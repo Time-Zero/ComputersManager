@@ -73,6 +73,9 @@
     <ClCompile Include="modify_machine_window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="rent_machine_window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sql_service.h">
@@ -104,6 +107,9 @@
     <QtMoc Include="modify_machine_window.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="rent_machine_window.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="login_window.ui">
@@ -125,6 +131,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="modify_machine_window.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="rent_machine_window.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

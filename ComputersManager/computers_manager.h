@@ -12,6 +12,7 @@
 #include <qfile.h>
 #include <qstandarditemmodel.h>
 #include <QtWidgets/QWidget>
+#include "rent_machine_window.h"
 
 
 #define MAIN_PAGE 0
@@ -30,10 +31,11 @@ enum TABLE_USER
 };
 
 enum TABLE_ROOM {
-    TABLE_ROOM_NAME = 0,
-    TABLE_ROOM_STATUES = 1,
-    TABLE_ROOM_MANAGER_ID = 2,
-    TABLE_ROOM_MANAGER_NAME = 3
+    TABLE_ROOM_NAME,
+    TABLE_ROOM_STATUES,
+    TABLE_ROOM_FEES,
+    TABLE_ROOM_MANAGER_ID,
+    TABLE_ROOM_MANAGER_NAME
 };
 
 enum MACHINE_TABLE {
@@ -76,6 +78,7 @@ private:
     void on_click_pushbutton_machine_delete();
     void on_click_tableview_user(const QModelIndex& index);
     void on_click_tableview_room(const QModelIndex& index);
+    void on_click_tableview_machine(const QModelIndex& index);
 
 private:
     Ui::ComputersManagerClass ui;
