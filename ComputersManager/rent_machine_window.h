@@ -1,7 +1,19 @@
-#pragma once
+﻿#pragma once
 
 #include <QWidget>
 #include "ui_rent_machine_window.h"
+#include "sql_service.h"
+#include <qfile.h>
+#include <future>
+#include <qmessagebox.h>
+#include <qvalidator.h>
+#include <qregularexpression.h>
+
+enum StackWidgetIndex {
+	PAGE_ON_USE,
+	PAGE_NO_USE
+};
+
 
 class RentMachineWindow : public QWidget
 {
@@ -16,6 +28,9 @@ signals:
 
 private:
 	void closeEvent(QCloseEvent* e);
+	void on_click_pushbutton_find_user();
+	void on_click_pushbutton_rent();
+
 
 private:
 	Ui::RentMachineWindowClass ui;

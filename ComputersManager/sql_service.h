@@ -20,6 +20,7 @@
 #define MACHINE_ROOM_TABLE "machine_room"
 
 #define PROCEDURE_CREATE_ROOM_MACHINE "CreateTableAndInsertDefaultData"
+#define PROCEDURE_CHECK_SOMEONE_IS_RENT "CheckSomeOneIsRent"
 
 #define UI_ID "ui_id"
 #define UI_NAME "ui_name"
@@ -96,6 +97,7 @@ public:
 	void GetManagerInfo(UserInfo& user_info);						//主要是为了查权限
 	std::string GetUserPassword(std::string& userid);				//获取用户密码
 	std::string GetUserName(std::string& userid, unsigned int userpermission);			// 获取用户名，设置管理员用的，只能返回权限比自己小的人
+	std::string GetUserName(std::string& userid);
 	unsigned int Register(UserInfo& user_info);					// 注册用的
 	unsigned int ModifyInfo(UserInfo& user_info);				// 自己主动修改信息
 	std::queue<UserInfo> GetUserList(UserInfo& user_info);			// 获取用户列表
@@ -111,6 +113,8 @@ public:
 	unsigned int AddMachine(std::string& room_name, Machine& machine);		// 添加电脑
 	int GetMachineStatus(std::string& room_name, std::string& machine_id);
 	int ModifyMachineInfo(Machine& machine, std::string& room_name);
+	std::vector<std::string> GetMachineUser(std::string& room_name, std::string& machine_id);
+	int CheckSomeOneIsRent(std::string& user_id);				// 检查这个人是不是在别的机房有记录
 
 
 private:

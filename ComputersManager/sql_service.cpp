@@ -181,6 +181,33 @@ std::string SqlService::GetUserName(std::string& userid, unsigned int userpermis
 	return user_name;
 }
 
+
+/// @brief 通过学号查姓名
+/// @param userid 学号
+/// @return 姓名,如果没查到就返回空字符串
+std::string SqlService::GetUserName(std::string& userid)
+{
+	sql::ResultSet* res = nullptr;
+	std::string ret = "";
+	std::string sql = "select " UI_NAME " from " USER_INFO_TABLE " where " UI_ID "='" + userid + "'";
+	try
+	{
+		res = p_stat_->executeQuery(sql);
+		
+		while (res->next())
+			ret = res->getString(UI_NAME);
+
+		if (res)
+			delete res;
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+	}
+
+	return ret;
+}
+
 unsigned int SqlService::Register(UserInfo& user_info)
 {
 	int ret = 0;
@@ -718,6 +745,71 @@ int SqlService::ModifyMachineInfo(Machine& machine, std::string& room_name)
 		for (auto sql : sql_vec) {
 			p_stat_->executeUpdate(sql);
 		}
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+		ret = -1;
+	}
+
+	return ret;
+}
+
+std::vector<std::string> SqlService::GetMachineUser(std::string& room_name, std::string& machine_id)
+{
+	std::vector<std::string> ret;
+	sql::ResultSet* res = nullptr;
+	std::string sql = "select " MH_STATUS ","
+		MH_UID ","
+		MH_SDATE ","
+		UI_NAME
+		" from " + room_name + " left join " USER_INFO_TABLE " on "
+		MH_UID "=" UI_ID " where " MH_ID "=" + machine_id;
+
+	BDEBUG(sql);
+
+	try
+	{
+		res = p_stat_->executeQuery(sql);
+		while (res->next()) {
+			ret.emplace_back(res->getString(MH_STATUS));
+			ret.emplace_back(res->getString(MH_UID));
+			ret.emplace_back(res->getString(MH_SDATE));
+			ret.emplace_back(res->getString(UI_NAME));
+		}
+
+		if (res)
+			delete res;
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+	}
+
+	return ret;
+}
+
+/// @brief 检查指定用户是不是在别的机房借用了
+/// @param user_id 用户id
+/// @return -1：未知错误	0：没有借用	1：借用了
+int SqlService::CheckSomeOneIsRent(std::string& user_id)
+{
+	int ret = 0;
+	sql::ResultSet* res = nullptr;
+	std::string sql_for_check = "call " PROCEDURE_CHECK_SOMEONE_IS_RENT "('" + user_id + "'," + "@result)";
+	//std::string sql_for_get_result = "select @result";
+
+	try
+	{
+		p_stat_->execute(sql_for_check);
+		res = p_stat_->getResultSet();
+		while (res->next()) {
+			ret = res->getInt(1);
+			//ret = res->getInt("@result");
+		}
+
+		if (res)
+			delete res;
 	}
 	catch (const sql::SQLException& e)
 	{
