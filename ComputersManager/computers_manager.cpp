@@ -320,7 +320,6 @@ void ComputersManager::on_click_toolbutton_room()
         return;
     ui.stackedWidget->setCurrentIndex(ROOM_PAGE);
     
-    
 }
 
 void ComputersManager::on_click_pushbutton_exit_login()
@@ -400,7 +399,6 @@ void ComputersManager::on_click_pushbutton_room_manager()
 
     QStandardItemModel* model = static_cast<QStandardItemModel*>(ui.tableView_rooms->model());
     std::string room_name = model->index(row, TABLE_ROOM_NAME, QModelIndex()).data().toString().toStdString();
-    BDEBUG(ret.row());
     std::vector<std::string> ret_room_info =  SqlService::GetInstance().GetRoomInfo(room_name);
 
     std::string room_status = (ret_room_info[0] == "1") ? "启用" : "停用";
@@ -545,7 +543,6 @@ void ComputersManager::on_click_tableview_room(const QModelIndex& index)
 }
 
 
-// TODO:待完善的上机窗口
 void ComputersManager::on_click_tableview_machine(const QModelIndex& index)
 {
     int row = index.row();
@@ -555,6 +552,7 @@ void ComputersManager::on_click_tableview_machine(const QModelIndex& index)
 
     RentMachineWindow* rent_machine_window = new RentMachineWindow(current_machine_room ,machine_id);
     connect(rent_machine_window, &RentMachineWindow::signal_rent_finish, this, [=]() {
+        RefreshMachineTable(model, current_machine_room);
         delete rent_machine_window;
         });
     rent_machine_window->show();

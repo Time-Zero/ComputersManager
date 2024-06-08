@@ -77,14 +77,21 @@ void RentMachineWindow::on_click_pushbutton_rent()
 	on_click_pushbutton_find_user();
 	std::string user_id = ui.lineEdit_user_id->text().toStdString();
 	int ret = SqlService::GetInstance().CheckSomeOneIsRent(user_id);
+	
 	if (ret == 1) {
 		QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("此人已经上机"));
 		return;
 	}
-	else {
-		QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("上机成功"));
-		emit signal_rent_finish();
-	}
+	
 
 	//TODO:添加上机内容
+
+	ret = SqlService::GetInstance().RentMachine(room_name_, machine_id_, user_id);
+	if (ret == -1) {
+		QMessageBox::information(this, QStringLiteral("错误"), QStringLiteral("未知错误"));
+		return;
+	}
+
+	QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("上机成功"));
+	emit signal_rent_finish();
 }

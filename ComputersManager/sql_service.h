@@ -3,13 +3,14 @@
 #include <jdbc/cppconn/exception.h>
 #include <jdbc/cppconn/resultset.h>
 #include <jdbc/cppconn/statement.h>
+#include <jdbc/cppconn/prepared_statement.h>
 #include <jdbc/mysql_driver.h>
-#include <mysqlx/xdevapi.h>
 #include <string>
 #include <thread>
 #include <queue>
 #include <memory>
 #include <vector>
+
 
 #define SQL_IP "tcp://172.30.131.79:3306/CMDB"
 #define SQL_USER "admin"
@@ -114,7 +115,8 @@ public:
 	int GetMachineStatus(std::string& room_name, std::string& machine_id);
 	int ModifyMachineInfo(Machine& machine, std::string& room_name);
 	std::vector<std::string> GetMachineUser(std::string& room_name, std::string& machine_id);
-	int CheckSomeOneIsRent(std::string& user_id);				// 检查这个人是不是在别的机房有记录
+	int CheckSomeOneIsRent(std::string& user_id);				// 检查这个人是不是在别的机房正在上机
+	int RentMachine(std::string& room_name, std::string& machine_id, std::string& user_id);
 
 
 private:

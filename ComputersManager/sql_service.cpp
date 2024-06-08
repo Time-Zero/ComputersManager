@@ -395,7 +395,7 @@ unsigned int SqlService::ChangInfo(UserInfo& user_info)
 unsigned int SqlService::CreateRoom(MachineInfo& machine_info)
 {
 	unsigned int ret = 0;
-	std::string sql_for_room = "insert into " MACHINE_ROOM_TABLE
+	std::string sql_for_room = "insert into " MACHINE_ROOM_TABLE				//在机房表中添加机房
 		"(" MR_NAME ","
 		MR_MANAGER ","
 		MR_FEES
@@ -405,15 +405,33 @@ unsigned int SqlService::CreateRoom(MachineInfo& machine_info)
 		"'" + machine_info.mananger_id + "'," 
 		"'" + std::to_string(machine_info.machine_fees) + "')";
 
-	std::string sql_for_machine = "call " PROCEDURE_CREATE_ROOM_MACHINE "('" + machine_info.room_name + "',"
+	std::string sql_for_machine = "call " PROCEDURE_CREATE_ROOM_MACHINE "('" + machine_info.room_name + "',"	//创建机器表
 		+ std::to_string(machine_info.machine_num) + ",'" + machine_info.cpu + "','"
-		+ machine_info.ram + "','" + machine_info.rom + "','" + machine_info.gpu + "')";
+		+ machine_info.ram + "','" + machine_info.rom + "','" + machine_info.gpu + "'); ";
+
+	// 创建机器表的上机状态改变自动赋值触发器
+	std::string sql_for_add_trigger = "create trigger " + machine_info.room_name +"RentStatusUpdate \
+									before update on " + machine_info.room_name + " for each row  \
+									begin  \
+										if NEW.mh_uid is not null then \
+											set NEW.mh_sdate = NOW(); \
+											set NEW.mh_status = 2; \
+										end if;	\
+									end; ";
 
 	p_conn_->setAutoCommit(false);
 	try
 	{
 		p_stat_->execute(sql_for_machine);
+
 		p_stat_->execute(sql_for_room);
+		/*if (p_stat_->getMoreResults()) {
+			auto temp = p_stat_->getResultSet();
+			if (temp != nullptr)
+				delete temp;
+		}*/
+
+		p_stat_->execute(sql_for_add_trigger);
 		p_conn_->commit();
 
 	}
@@ -795,21 +813,43 @@ std::vector<std::string> SqlService::GetMachineUser(std::string& room_name, std:
 int SqlService::CheckSomeOneIsRent(std::string& user_id)
 {
 	int ret = 0;
-	sql::ResultSet* res = nullptr;
-	std::string sql_for_check = "call " PROCEDURE_CHECK_SOMEONE_IS_RENT "('" + user_id + "'," + "@result)";
-	//std::string sql_for_get_result = "select @result";
+	
+	try
+	{
+		{
+			std::string sql_for_check = "call " PROCEDURE_CHECK_SOMEONE_IS_RENT "( ? , @result)";
+			std::unique_ptr<sql::PreparedStatement> prep_query(p_conn_->prepareStatement(sql_for_check));
+			prep_query->setString(1, user_id);
+			prep_query->execute();
+		}
+
+		std::string sql_for_result = "select @result as reuslt";
+		std::unique_ptr<sql::PreparedStatement> prep_select(p_conn_->prepareStatement(sql_for_result));
+		std::unique_ptr<sql::ResultSet> res(prep_select->executeQuery());
+		size_t rows = res->rowsCount();
+		while (res->next()) {
+			ret = res->getInt(1);
+		}
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+		ret = -1;
+	}
+
+	return ret;
+	
+}
+
+int SqlService::RentMachine(std::string& room_name, std::string& machine_id, std::string& user_id)
+{
+	int ret = 0;
+	std::string sql = "update " + room_name + " set " MH_UID "='" + user_id + "' where " MH_ID "=" + machine_id;
+	BDEBUG(sql);
 
 	try
 	{
-		p_stat_->execute(sql_for_check);
-		res = p_stat_->getResultSet();
-		while (res->next()) {
-			ret = res->getInt(1);
-			//ret = res->getInt("@result");
-		}
-
-		if (res)
-			delete res;
+		p_stat_->executeUpdate(sql);
 	}
 	catch (const sql::SQLException& e)
 	{
