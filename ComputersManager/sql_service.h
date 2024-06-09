@@ -22,6 +22,7 @@
 
 #define PROCEDURE_CREATE_ROOM_MACHINE "CreateTableAndInsertDefaultData"
 #define PROCEDURE_CHECK_SOMEONE_IS_RENT "CheckSomeOneIsRent"
+#define	PROCEDURE_END_RENT "EndRent"
 
 #define UI_ID "ui_id"
 #define UI_NAME "ui_name"
@@ -117,6 +118,9 @@ public:
 	std::vector<std::string> GetMachineUser(std::string& room_name, std::string& machine_id);
 	int CheckSomeOneIsRent(std::string& user_id);				// 检查这个人是不是在别的机房正在上机
 	int RentMachine(std::string& room_name, std::string& machine_id, std::string& user_id);
+	std::vector<std::string> GetRentInfo(const std::string& room_name,const  std::string& machine_id);
+	double EndRent(const std::string& room_name, const std::string& machine_id);
+	std::string GetRoomManager(const std::string& machine_name);
 
 
 private:

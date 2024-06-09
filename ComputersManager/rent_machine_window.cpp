@@ -17,6 +17,13 @@ RentMachineWindow::RentMachineWindow(std::string room_name, std::string machine_
 		this->setStyleSheet(file.readAll());
 		file.close();
 	}
+	this->setWindowFlags(Qt::MSWindowsFixedSizeDialogHint);
+
+	ui.label_pay->resize(468, 220);
+	QPixmap pix(":/picture/images/pay_code.jpg");
+	QPixmap dest = pix.scaled(ui.label_pay->size(), Qt::KeepAspectRatio);
+	ui.label_pay->setPixmap(dest);
+
 
 	ui.lineEdit_user_id->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]+$")));
 	ui.lineEdit_user_id->setPlaceholderText(QString::fromStdString("输入学号"));
@@ -24,6 +31,8 @@ RentMachineWindow::RentMachineWindow(std::string room_name, std::string machine_
 
 	connect(ui.pushButton_find_user, &QPushButton::clicked, this, &RentMachineWindow::on_click_pushbutton_find_user);
 	connect(ui.pushButton_rent, &QPushButton::clicked, this, &RentMachineWindow::on_click_pushbutton_rent);
+	connect(ui.pushButton_end_rent, &QPushButton::clicked, this, &RentMachineWindow::on_click_pushbutton_end_rent);
+	connect(ui.pushButton_pay_ok, &QPushButton::clicked, this, [=]() {emit signal_rent_finish(); });
 
 	std::vector<std::string> machine_user_info = fut_ret.get();
 	if (machine_user_info[0] == "0") {			//停用就直接提示然后退出
@@ -35,6 +44,11 @@ RentMachineWindow::RentMachineWindow(std::string room_name, std::string machine_
 	}
 	else if (machine_user_info[0] == "2") {		// 使用的话切换到使用者信息页面
 		ui.stackedWidget->setCurrentIndex(PAGE_ON_USE);
+		auto ret = SqlService::GetInstance().GetRentInfo(room_name_, machine_id_);
+		ui.label_user_id->setText(QString::fromStdString(ret[0]));
+		ui.label_username->setText(QString::fromStdString(ret[1]));
+		ui.label_sdate->setText(QString::fromStdString(ret[2]));
+		ui.label_fee->setText(QString::fromStdString(ret[3]));
 	}
 	
 }
@@ -84,8 +98,6 @@ void RentMachineWindow::on_click_pushbutton_rent()
 	}
 	
 
-	//TODO:添加上机内容
-
 	ret = SqlService::GetInstance().RentMachine(room_name_, machine_id_, user_id);
 	if (ret == -1) {
 		QMessageBox::information(this, QStringLiteral("错误"), QStringLiteral("未知错误"));
@@ -94,4 +106,16 @@ void RentMachineWindow::on_click_pushbutton_rent()
 
 	QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("上机成功"));
 	emit signal_rent_finish();
+}
+
+void RentMachineWindow::on_click_pushbutton_end_rent()
+{
+	double fee = SqlService::GetInstance().EndRent(room_name_, machine_id_);
+	if (fee < 0) {
+		QMessageBox::information(this, QStringLiteral("错误"), QStringLiteral("未知错误"));
+		return;
+	}
+	
+	ui.stackedWidget->setCurrentIndex(PAGE_PAY);
+
 }

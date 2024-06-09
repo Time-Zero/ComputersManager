@@ -181,6 +181,7 @@ void ComputersManager::slot_login(std::string userid)
     delete p_login_window_;
     user_info_.id = userid;     //设置用户
     InitMainPage();
+
     if (user_info_.permission == USER) {
         ui.toolButton_mainpage->setVisible(true);
         ui.toolButton_user->setVisible(false);
@@ -194,7 +195,7 @@ void ComputersManager::slot_login(std::string userid)
         ui.toolButton_user->setVisible(true);
         ui.toolButton_room->setVisible(true);
         ui.toolButton_sum->setVisible(true);
-        ui.toolButton_order->setVisible(true);
+        ui.toolButton_order->setVisible(false);
         ui.toolButton_backup->setVisible(true);
     }
 
@@ -538,6 +539,18 @@ void ComputersManager::on_click_tableview_room(const QModelIndex& index)
     current_machine_room = room_name;                   //记录一下现在打开的机房，用于后面的机房电脑表的定位
     model = static_cast<QStandardItemModel*>(ui.tableView_machines->model());
     RefreshMachineTable(model, room_name);
+
+    std::string manager_id = SqlService::GetInstance().GetRoomManager(current_machine_room);
+    if (manager_id == user_info_.id || user_info_.permission == SADMIN) {
+        ui.pushButton_machine_add->setEnabled(true);
+        ui.pushButton_machine_manager->setEnabled(true);
+        ui.pushButton_machine_delete->setEnabled(true);
+    }
+    else {
+        ui.pushButton_machine_add->setEnabled(false);
+        ui.pushButton_machine_manager->setEnabled(false);
+        ui.pushButton_machine_delete->setEnabled(false);
+    }
     
     ui.stackedWidget->setCurrentIndex(MACHINE_ROOM_PAGE); 
 }
@@ -545,10 +558,20 @@ void ComputersManager::on_click_tableview_room(const QModelIndex& index)
 
 void ComputersManager::on_click_tableview_machine(const QModelIndex& index)
 {
+    //用户不允许操作
+    if (user_info_.permission == USER)
+        return;
+
+    // 非本机房的管理员或者不是超级管理员的不允许操作上机
+    std::string manager_id = SqlService::GetInstance().GetRoomManager(current_machine_room);
+    if (manager_id != user_info_.id || user_info_.permission < SADMIN)
+        return;
+
     int row = index.row();
     QStandardItemModel* model = static_cast<QStandardItemModel*>(ui.tableView_machines->model());
     std::string machine_id = model->index(row, MACHINE_ID, QModelIndex()).data().toString().toStdString();
-    BDEBUG(machine_id);
+    std::string machine_user_id = model->index(row, MACHINE_UID, QModelIndex()).data().toString().toStdString();
+        
 
     RentMachineWindow* rent_machine_window = new RentMachineWindow(current_machine_room ,machine_id);
     connect(rent_machine_window, &RentMachineWindow::signal_rent_finish, this, [=]() {

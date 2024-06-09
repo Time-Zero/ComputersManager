@@ -8,9 +8,12 @@
 #include <qmessagebox.h>
 #include <qvalidator.h>
 #include <qregularexpression.h>
+#include <qimage.h>
+#include "qpalette.h"
 
 enum StackWidgetIndex {
 	PAGE_ON_USE,
+	PAGE_PAY,
 	PAGE_NO_USE
 };
 
@@ -30,6 +33,7 @@ private:
 	void closeEvent(QCloseEvent* e);
 	void on_click_pushbutton_find_user();
 	void on_click_pushbutton_rent();
+	void on_click_pushbutton_end_rent();
 
 
 private:

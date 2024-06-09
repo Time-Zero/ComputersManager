@@ -47,14 +47,14 @@ void ModifyRoom::on_click_pushbutton_confirm()
 	std::string manager_id = ui.lineEdit_manager_id->text().toStdString();
 	double fees = ui.doubleSpinBox_fees->value();
 	int status = ui.comboBox->currentIndex();
-	if (manager_id.empty() && status == row_status) {
+	if (manager_id.empty() && status == row_status && fees == 0) {
 		QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("请做出修改后再提交"));
 		return;
 	}
 
 	if (status == row_status) status = -1;			//如果没有修改状态，状态就是-1
 	
-	// 允许只修改状态
+	// 如果设置了新的管理员id，就查找
 	if(!manager_id.empty())
 		on_click_pushbutton_search();
 

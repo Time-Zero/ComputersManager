@@ -610,7 +610,7 @@ std::queue<Machine> SqlService::GetMachines(std::string& room_name)
 		MH_ROM ","
 		MH_GPU ","
 		MH_UID ","
-		UI_NAME " from " + room_name + " left join " USER_INFO_TABLE " on " UI_ID "=" MH_ID;
+		UI_NAME " from " + room_name + " left join " USER_INFO_TABLE " on " UI_ID "=" MH_UID;
 	BDEBUG(sql);
 	
 	try
@@ -855,6 +855,99 @@ int SqlService::RentMachine(std::string& room_name, std::string& machine_id, std
 	{
 		BDEBUG(e.what());
 		ret = -1;
+	}
+
+	return ret;
+}
+
+std::vector<std::string> SqlService::GetRentInfo(const std::string& room_name,const std::string& machine_id)
+{
+	std::vector<std::string> ret;
+	std::string sql = "select "
+		MH_UID ","
+		UI_NAME ","
+		MH_SDATE
+		" from " + room_name + " left join " + USER_INFO_TABLE 
+			" on " MH_UID "=" UI_ID 
+				" where " MH_ID "=" + machine_id; 
+
+	std::string sql_for_base_fee = "select " MR_FEES " from " MACHINE_ROOM_TABLE " where " MR_NAME "='" + room_name + "'";
+
+	try
+	{
+		std::unique_ptr<sql::ResultSet> res(p_stat_->executeQuery(sql));
+		std::unique_ptr<sql::ResultSet> res_for_base_fee(p_stat_->executeQuery(sql_for_base_fee));
+		std::unique_ptr<sql::ResultSet> res_for_current_datetime(p_stat_->executeQuery("select NOW() as now"));
+		while (res->next()) {
+			ret.emplace_back(res->getString(MH_UID));
+			ret.emplace_back(res->getString(UI_NAME));
+
+			std::string start_date = res->getString(MH_SDATE);
+			ret.push_back(start_date);
+			
+			res_for_current_datetime->next();
+			std::string current_date = res_for_current_datetime->getString("now");
+
+			res_for_base_fee->next();
+			double fee_base = res_for_base_fee->getDouble(MR_FEES);
+			double date_diff = CalculateHourDifference(current_date, start_date);
+			double fee_sum = ceil(date_diff) * fee_base;
+			ret.emplace_back(std::to_string(fee_sum) + "元");
+		}
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+	}
+
+
+	return ret;
+}
+
+double SqlService::EndRent(const std::string& room_name, const std::string& machine_id)
+{
+	double ret = 0;
+
+	try
+	{
+		{
+			std::string sql = "call " PROCEDURE_END_RENT "(?,?,@fee)";
+			std::unique_ptr<sql::PreparedStatement> prep(p_conn_->prepareStatement(sql));
+			prep->setString(1, room_name);
+			prep->setString(2, machine_id);
+			prep->execute();
+		}
+
+		{
+			std::string sql = "select @fee as fee";
+			std::unique_ptr<sql::PreparedStatement> prep(p_conn_->prepareStatement(sql));
+			std::unique_ptr<sql::ResultSet> res(prep->executeQuery());
+			while (res->next()) {
+				ret = res->getDouble(1);
+			}
+		}
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+		ret = -1;
+	}
+
+	return ret;
+}
+
+std::string SqlService::GetRoomManager(const std::string& machine_name)
+{
+	std::string ret = "";
+	std::string sql = "select " MR_MANAGER " from " MACHINE_ROOM_TABLE " where " MR_NAME "='" + machine_name + "'";
+	try {
+		std::unique_ptr<sql::ResultSet> res(p_stat_->executeQuery(sql));
+		while (res->next()) {
+			ret = res->getString(MR_MANAGER);
+		}
+
+	}catch(const sql::SQLException& e){
+		BDEBUG(e.what());
 	}
 
 	return ret;
