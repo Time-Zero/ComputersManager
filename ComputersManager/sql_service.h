@@ -1,14 +1,14 @@
 ﻿#pragma once
 #include "common_tools.h"
 #include <jdbc/cppconn/exception.h>
+#include <jdbc/cppconn/prepared_statement.h>
 #include <jdbc/cppconn/resultset.h>
 #include <jdbc/cppconn/statement.h>
-#include <jdbc/cppconn/prepared_statement.h>
 #include <jdbc/mysql_driver.h>
+#include <memory>
+#include <queue>
 #include <string>
 #include <thread>
-#include <queue>
-#include <memory>
 #include <vector>
 
 
@@ -23,6 +23,8 @@
 #define PROCEDURE_CREATE_ROOM_MACHINE "CreateTableAndInsertDefaultData"
 #define PROCEDURE_CHECK_SOMEONE_IS_RENT "CheckSomeOneIsRent"
 #define	PROCEDURE_END_RENT "EndRent"
+#define PROCEDURE_SUM_ROOM "SumRoom"
+#define PROCEDURE_COUNT_IT_BY_SOME_ROWS "CountItBySomeRows"
 
 #define UI_ID "ui_id"
 #define UI_NAME "ui_name"
@@ -121,6 +123,11 @@ public:
 	std::vector<std::string> GetRentInfo(const std::string& room_name,const  std::string& machine_id);
 	double EndRent(const std::string& room_name, const std::string& machine_id);
 	std::string GetRoomManager(const std::string& machine_name);
+	std::vector<std::string> GetRoomSum(const std::string& room_name);
+	std::vector<std::pair<std::string, std::string>> GetManagerList();
+	std::vector<std::string> GetSimpleRoomList();
+	double CountItBySomeRows(const std::string& manager_id,const std::string& room_name,const std::string& start_date,const std::string& end_date);
+
 
 
 private:

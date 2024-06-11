@@ -952,3 +952,114 @@ std::string SqlService::GetRoomManager(const std::string& machine_name)
 
 	return ret;
 }
+
+std::vector<std::string> SqlService::GetRoomSum(const std::string& room_name)
+{
+	std::vector<std::string> ret;
+	std::string sql = "call " PROCEDURE_SUM_ROOM "('" + room_name + "', @time, @fee)";
+	std::string sql_for_result = "select @time as time, @fee as fee";
+	try
+	{
+		//执行存储过程
+		{
+			std::unique_ptr<sql::PreparedStatement> prep(p_conn_->prepareStatement(sql));
+			prep->execute();
+		}
+
+		// 获取存储过程结果
+		{
+			std::unique_ptr<sql::ResultSet> res(p_stat_->executeQuery(sql_for_result));
+			while (res->next()) {
+				ret.emplace_back(res->getString(1));
+				ret.emplace_back(res->getString(2));
+			}
+		}
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+	}
+
+
+	return ret;
+}
+
+std::vector<std::pair<std::string, std::string>> SqlService::GetManagerList()
+{
+	std::vector<std::pair<std::string, std::string>> ret;
+	std::string sql = "select " UI_ID "," UI_NAME " from " USER_INFO_TABLE "," USER_PERMISSION_TABLE
+		" where " UI_ID "=" UP_ID " and " UP_PERMISSION " >= 2";
+
+	try
+	{
+		{
+			std::unique_ptr<sql::ResultSet>res(p_stat_->executeQuery(sql));
+			while (res->next()) {
+				std::pair<std::string, std::string> temp;
+				temp.first = res->getString(UI_ID);
+				temp.second = res->getString(UI_NAME);
+				ret.emplace_back(temp);
+			}
+		}
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+	}
+
+	return ret;
+}
+
+std::vector<std::string> SqlService::GetSimpleRoomList()
+{
+	std::vector<std::string> ret;
+	std::string sql = "select " MR_NAME " from " MACHINE_ROOM_TABLE;
+	try
+	{
+		std::unique_ptr<sql::ResultSet> res(p_stat_->executeQuery(sql));
+		while (res->next()) {
+			ret.emplace_back(res->getString(MR_NAME));
+		}
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+	}
+	return ret;
+}
+
+double SqlService::CountItBySomeRows(const std::string& manager_id, const std::string& room_name, const std::string& start_date, const std::string& end_date)
+{
+	double ret = 0;
+	std::string sql = "call " PROCEDURE_COUNT_IT_BY_SOME_ROWS "('" + manager_id +
+		"','" + room_name +
+		"','" + start_date +
+		"','" + end_date + "', @f)";
+
+	std::string sql_for_result = "select @f as f";
+	BDEBUG(sql);
+
+	try
+	{
+		{
+			std::unique_ptr<sql::PreparedStatement> prep(p_conn_->prepareStatement(sql));
+			prep->execute();
+		}
+
+		{
+			std::unique_ptr<sql::ResultSet> res(p_stat_->executeQuery(sql_for_result));
+			while (res->next()) {
+				ret = res->getDouble(1);
+			}
+
+		}
+
+	}
+	catch (const sql::SQLException& e)
+	{
+		BDEBUG(e.what());
+		ret = -1;
+	}
+	
+	return ret;
+}

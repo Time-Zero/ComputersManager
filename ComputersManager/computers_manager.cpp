@@ -15,6 +15,7 @@ ComputersManager::ComputersManager(QWidget *parent)
     UserTableInit();
     RoomTableInit();
     MachinesTableInit();
+    SumPageInit();
 
     connect(ui.toolButton_mainpage, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_mainpage);
     connect(ui.toolButton_user, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_user);
@@ -28,6 +29,10 @@ ComputersManager::ComputersManager(QWidget *parent)
     connect(ui.pushButton_machine_delete, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_machine_delete);
     connect(ui.pushButton_machine_manager, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_machine_manager);
     connect(ui.pushButton_machine_add, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_machine_add);
+    connect(ui.pushButton_room_sum, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_machine_room_sum);
+    connect(ui.toolButton_sum, &QPushButton::clicked, this, &ComputersManager::on_click_toolbutton_sum);
+    connect(ui.pushButton_sum_confirm, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_sum_confirm);
+    
     p_login_window_ = new LoginWindow();
     connect(p_login_window_, &LoginWindow::signal_login, this, &ComputersManager::slot_login);
     p_login_window_->show();
@@ -124,6 +129,37 @@ void ComputersManager::MachinesTableInit()
     connect(ui.tableView_machines, &QTableView::doubleClicked, this, &ComputersManager::on_click_tableview_machine);
 }
 
+void ComputersManager::SumPageInit()
+{
+    ui.dateTimeEdit_end_time->setDisplayFormat("yyyy-MM-dd HH:mm:ss");
+    ui.dateTimeEdit_end_time->setCalendarPopup(true);
+    ui.dateTimeEdit_end_time->setDateTime(QDateTime::currentDateTime());
+    ui.dateTimeEdit_start_time->setDisplayFormat("yyyy-MM-dd HH:mm:ss");
+    ui.dateTimeEdit_start_time->setCalendarPopup(true);
+
+    QStandardItemModel* model_people = new QStandardItemModel();
+    QList<QString> table_header_people{ "工号","姓名" };
+    model_people->setHorizontalHeaderLabels(QStringList(table_header_people));
+    ui.tableView_sum_people->setModel(model_people);
+    ui.tableView_sum_people->setFocusPolicy(Qt::NoFocus);             //选中没有虚线框
+    ui.tableView_sum_people->setFrameShape(QFrame::NoFrame);          // 没有边框
+    ui.tableView_sum_people->setAlternatingRowColors(true);           // 交替颜色
+    ui.tableView_sum_people->setSelectionBehavior(QAbstractItemView::SelectRows); // 选中行为为选中行
+    for (int i = 0; i < table_header_people.size(); i++) {
+        ui.tableView_sum_people->setColumnWidth(i, 367/2);
+    }
+
+    QStandardItemModel* model_room = new QStandardItemModel();
+    QList<QString> table_header_room{ "机房名" };
+    model_room->setHorizontalHeaderLabels(QStringList(table_header_room));
+    ui.tableView_sum_room->setModel(model_room);
+    ui.tableView_sum_room->setFocusPolicy(Qt::NoFocus);             //选中没有虚线框
+    ui.tableView_sum_room->setFrameShape(QFrame::NoFrame);          // 没有边框
+    ui.tableView_sum_room->setAlternatingRowColors(true);           // 交替颜色
+    ui.tableView_sum_room->setSelectionBehavior(QAbstractItemView::SelectRows); // 选中行为为选中行
+    ui.tableView_sum_room->setColumnWidth(0, 367);
+}
+
 /// @brief 刷新机器表
 /// @param model 表的模式
 /// @param room_name 机房名字
@@ -194,7 +230,8 @@ void ComputersManager::slot_login(std::string userid)
         ui.toolButton_mainpage->setVisible(true);
         ui.toolButton_user->setVisible(true);
         ui.toolButton_room->setVisible(true);
-        ui.toolButton_sum->setVisible(true);
+        if (user_info_.permission != SADMIN) ui.toolButton_sum->setVisible(false);
+        else ui.toolButton_sum->setVisible(true);
         ui.toolButton_order->setVisible(false);
         ui.toolButton_backup->setVisible(true);
     }
@@ -321,6 +358,42 @@ void ComputersManager::on_click_toolbutton_room()
         return;
     ui.stackedWidget->setCurrentIndex(ROOM_PAGE);
     
+}
+
+void ComputersManager::on_click_toolbutton_sum()
+{
+    ui.stackedWidget->setCurrentIndex(SUM_PAGE);
+    auto manager_list = SqlService::GetInstance().GetManagerList();
+    auto machine_room_list = SqlService::GetInstance().GetSimpleRoomList();
+
+    {
+        QStandardItemModel* model = static_cast<QStandardItemModel*>(ui.tableView_sum_people->model());
+        TableClear(model);
+        for (auto manager : manager_list) {
+            int row = model->rowCount();
+
+            QStandardItem* item1 = new QStandardItem(QString::fromStdString(manager.first));
+            item1->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+            model->setItem(row, 0, item1);
+
+            QStandardItem* item2 = new QStandardItem(QString::fromStdString(manager.second));
+            item2->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+            model->setItem(row, 1, item2);
+        }
+    }
+
+    {
+        QStandardItemModel* model = static_cast<QStandardItemModel*>(ui.tableView_sum_room->model());
+        TableClear(model);
+        for (auto room : machine_room_list) {
+            int row = model->rowCount();
+
+            QStandardItem* item = new QStandardItem(QString::fromStdString(room));
+            item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+            model->setItem(row, 0, item);
+        }
+    }
+
 }
 
 void ComputersManager::on_click_pushbutton_exit_login()
@@ -485,6 +558,22 @@ void ComputersManager::on_click_pushbutton_machine_add()
     add_machine_window->show();
 }
 
+void ComputersManager::on_click_pushbutton_machine_room_sum()
+{
+    int row = ui.tableView_rooms->currentIndex().row();
+    if (row == -1) {
+        QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("请先选择要操作的设备"));
+        return;
+    }
+
+    QStandardItemModel* model = static_cast<QStandardItemModel*>(ui.tableView_rooms->model());
+    std::string room_name = model->index(row, TABLE_ROOM_NAME, QModelIndex()).data().toString().toStdString();
+
+    std::vector<std::string> ret = SqlService::GetInstance().GetRoomSum(room_name);
+    std::string sum_message = "上机时间总计：" + ret[0] + "小时 \r\n 上机费用总计： " + ret[1] + "元";
+    QMessageBox::information(this, QStringLiteral("提示"), QString::fromStdString(sum_message));
+}
+
 void ComputersManager::on_click_pushbutton_machine_delete()
 {
     int row = ui.tableView_machines->currentIndex().row();
@@ -508,6 +597,41 @@ void ComputersManager::on_click_pushbutton_machine_delete()
     else {
         QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("删除失败，未知错误"));
     }
+}
+
+void ComputersManager::on_click_pushbutton_sum_confirm()
+{
+    std::string manager_id;
+    std::string room_name;
+    std::string start_time = ui.dateTimeEdit_start_time->dateTime().toString("yyyy-MM-dd HH:mm:ss").toStdString();
+    std::string end_time = ui.dateTimeEdit_end_time->dateTime().toString("yyyy-MM-dd HH:mm:ss").toStdString();
+
+    {
+        int row = ui.tableView_sum_people->currentIndex().row();
+        if (row == -1) {
+            manager_id = "";
+        }
+        else {
+            QStandardItemModel* model = static_cast<QStandardItemModel*>(ui.tableView_sum_people->model());
+            manager_id = model->index(row, 0, QModelIndex()).data().toString().toStdString();
+        }
+    }
+
+    {
+        int row = ui.tableView_sum_room->currentIndex().row();
+        if (row == -1) {
+            room_name = "";
+        }
+        else {
+            QStandardItemModel* model = static_cast<QStandardItemModel*>(ui.tableView_sum_room->model());
+            room_name = model->index(row, 0, QModelIndex()).data().toString().toStdString();
+        }
+    }
+
+    auto ret = SqlService::GetInstance().CountItBySomeRows(manager_id, room_name, start_time, end_time);
+    std::string mess = "统计结果为: " + std::to_string(ret) + "元";
+
+    QMessageBox::information(this, QStringLiteral("提示"), QString::fromStdString(mess));
 }
 
 void ComputersManager::on_click_tableview_user(const QModelIndex& index)

@@ -19,6 +19,7 @@
 #define ROOM_PAGE 1
 #define USER_CONTROL_PAGE 2
 #define MACHINE_ROOM_PAGE 3
+#define SUM_PAGE 4
 
 #define TABLE_WIDTH 736
 
@@ -62,11 +63,13 @@ private:
     void UserTableInit();
     void RoomTableInit();
     void MachinesTableInit();
+    void SumPageInit();
     void RefreshMachineTable(QStandardItemModel* model, std::string& room_name);
     void slot_login(std::string userid);
     void on_click_toolbutton_mainpage();
     void on_click_toolbutton_user();
     void on_click_toolbutton_room();
+    void on_click_toolbutton_sum();
     void on_click_pushbutton_exit_login();
     void on_click_pushbutton_modify_info();
     void on_click_pushbutton_search_user();
@@ -75,7 +78,9 @@ private:
     void on_click_pushbutton_delete_room();
     void on_click_pushbutton_machine_manager();
     void on_click_pushbutton_machine_add();
+    void on_click_pushbutton_machine_room_sum();
     void on_click_pushbutton_machine_delete();
+    void on_click_pushbutton_sum_confirm();
     void on_click_tableview_user(const QModelIndex& index);
     void on_click_tableview_room(const QModelIndex& index);
     void on_click_tableview_machine(const QModelIndex& index);
