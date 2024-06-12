@@ -76,12 +76,18 @@
     <ClCompile Include="rent_machine_window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="server_connector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sql_service.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common_tools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="server_connector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

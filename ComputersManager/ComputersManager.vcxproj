@@ -115,6 +115,7 @@
     <ClCompile Include="modify_room.cpp" />
     <ClCompile Include="modify_window.cpp" />
     <ClCompile Include="rent_machine_window.cpp" />
+    <ClCompile Include="server_connector.cpp" />
     <ClCompile Include="sql_service.cpp" />
     <None Include="change_userinfo.qss" />
     <None Include="computer_manager.qss" />
@@ -147,6 +148,7 @@
     <QtMoc Include="modify_room.h" />
     <QtMoc Include="modify_machine_window.h" />
     <QtMoc Include="rent_machine_window.h" />
+    <ClInclude Include="server_connector.h" />
     <ClInclude Include="sql_service.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
