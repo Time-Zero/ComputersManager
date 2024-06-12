@@ -1,0 +1,7 @@
+Package: libssh2
+Feature: openssl
+Depends: openssl
+Architecture: x64-windows
+Multi-Arch: same
+Description: Use the openssl crypto backend
+Status: install ok half-installed
