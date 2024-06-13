@@ -9,6 +9,11 @@
 #include <sql_service.h>
 #include <qmessagebox.h>
 #include <future>
+#include "qstandardpaths.h"
+#include "qfiledialog.h"
+#include "server_connector.h"
+#include "configure_get.h"
+#include "memory"
 
 class LoginWindow : public QWidget
 {
@@ -26,6 +31,8 @@ private:
 	void on_click_button_register();
 	void on_click_button_register_confirm();
 	void on_click_button_register_cancal();
+	void on_click_toolbutton_restore_file_select();
+	void on_click_pushbutton_restore_confirm();
 
 private:
 	Ui::LoginWindowClass ui;

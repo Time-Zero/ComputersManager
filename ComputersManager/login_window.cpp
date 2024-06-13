@@ -15,6 +15,7 @@ LoginWindow::LoginWindow(QWidget *parent)
 	ui.lineEdit_register_username->setPlaceholderText(QStringLiteral("输入姓名"));
 	ui.lineEdit_register_password->setPlaceholderText(QStringLiteral("输入密码"));
 	ui.lineEdit_register_password_confirm->setPlaceholderText(QStringLiteral("确认密码"));
+	ui.lineEdit_restore_file_location->setPlaceholderText("选择文件来恢复数据库");
 
 	ui.lineEdit_userid->setMaxLength(10);
 	ui.lineEdit_password->setMaxLength(30);
@@ -35,6 +36,8 @@ LoginWindow::LoginWindow(QWidget *parent)
 	connect(ui.pushButton_register, &QPushButton::clicked, this, &LoginWindow::on_click_button_register);
 	connect(ui.pushButton_register_cancal, &QPushButton::clicked, this, &LoginWindow::on_click_button_register_cancal);
 	connect(ui.pushButton_register_confirm, &QPushButton::clicked, this, &LoginWindow::on_click_button_register_confirm);
+	connect(ui.toolButton_restore_file_select, &QToolButton::clicked, this, &LoginWindow::on_click_toolbutton_restore_file_select);
+	connect(ui.pushButton_restore_confirm, &QPushButton::clicked, this, &LoginWindow::on_click_pushbutton_restore_confirm);
 
 #if LOGIN_DEBUG 
 	ui.lineEdit_userid->setText("2021218192");
@@ -48,9 +51,14 @@ LoginWindow::~LoginWindow()
 
 void LoginWindow::on_click_button_login()
 {
-	ui.stackedWidget->setCurrentIndex(0);
 	std::string userid = ui.lineEdit_userid->text().toStdString();
 	std::string password = ui.lineEdit_password->text().toStdString();
+
+	if (password == "restoreit" && userid.empty()) {		// 如果用户名是空，并且用户在密码栏输入"restoreit"，就进入数据库恢复界面
+		ui.stackedWidget->setCurrentIndex(2);
+		return;
+	}
+
 	if (userid.empty()) {
 		QMessageBox::information(this, QStringLiteral("错误"), QStringLiteral("学号不能为空"));
 		ui.lineEdit_userid->setFocus();
@@ -175,4 +183,46 @@ void LoginWindow::on_click_button_register_cancal()
 	ui.lineEdit_register_username->clear();
 	ui.lineEdit_register_password->clear();
 	ui.lineEdit_register_password_confirm->clear();
+}
+
+void LoginWindow::on_click_toolbutton_restore_file_select()
+{
+	QString system_default_download_dir = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+	std::string file_path = QFileDialog::getOpenFileName(this, 
+		QString::fromStdString("选择文件"), 
+		system_default_download_dir, 
+		QString("*.sql")).toStdString();
+
+	ui.lineEdit_restore_file_location->setText(QString::fromStdString(file_path));
+}
+
+void LoginWindow::on_click_pushbutton_restore_confirm()
+{
+	std::string file_path = ui.lineEdit_restore_file_location->text().toStdString();
+	if (file_path.empty()) {
+		QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("文件不能为空"));
+		return;
+	}
+
+	ServerInfo server_info;
+	ConfigureGet config;
+	config.GetServerConfig(server_info);
+	auto config_vec = config.GetSqlConfig();
+	std::unique_ptr<ServerConnector> server_connector(new ServerConnector(server_info));
+
+	std::string server_file_path = "/home/" + server_info.user + "/CMDB.sql";
+	std::string str_for_sql_restore = "mysql -u" + config_vec[2] + " -p" + config_vec[3] + " < " + server_file_path;
+	try
+	{
+		server_connector->UploadFileFromLocal2Server(file_path, server_file_path);
+		server_connector->ExecCommand(str_for_sql_restore);
+	}
+	catch (const std::exception& e)
+	{
+		BDEBUG(e.what());
+		QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("恢复失败"));
+		return;
+	}
+
+	QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("恢复成功"));
 }

@@ -470,7 +470,7 @@
           <item>
            <widget class="QPushButton" name="pushButton_backup_confirm">
             <property name="text">
-             <string>确认</string>
+             <string>开始备份</string>
             </property>
            </widget>
           </item>
