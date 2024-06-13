@@ -1,13 +1,15 @@
 ﻿#include "sql_service.h"
 
 /// @brief 构造函数
-/// @param ip 数据库IP
-/// @param user 登录用户名
-/// @param password 密码
-SqlService::SqlService(std::string ip, std::string user, std::string password) {
+SqlService::SqlService() {
 	try
 	{
-		BDEBUG("SqlService Structure")
+		BDEBUG("SqlService Structure");
+		ConfigureGet config;
+		auto config_vec = config.GetSqlConfig();
+		std::string ip = "tcp://" + config_vec[0] + ":" + config_vec[1] + "/CMDB";
+		std::string user = config_vec[2];
+		std::string password = config_vec[3];
 
 		sql::mysql::MySQL_Driver* driver = sql::mysql::get_mysql_driver_instance();
 		p_conn_.reset(driver->connect(ip, user, password));
@@ -144,7 +146,7 @@ std::string SqlService::GetUserPassword(std::string& userid)
 	return password;
 }
 
-std::string SqlService::GetUserName(std::string& userid, unsigned int userpermission)
+std::string SqlService::GetUserNameLowPermisson(std::string& userid, unsigned int userpermission)
 {
 	std::string user_name = "";
 	sql::ResultSet* res = nullptr;

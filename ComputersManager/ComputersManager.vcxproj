@@ -109,6 +109,7 @@
     <ClCompile Include="add_machine_winodw.cpp" />
     <ClCompile Include="change_userinfo.cpp" />
     <ClCompile Include="common_tools.cpp" />
+    <ClCompile Include="configure_get.cpp" />
     <ClCompile Include="create_room_window.cpp" />
     <ClCompile Include="login_window.cpp" />
     <ClCompile Include="modify_machine_window.cpp" />
@@ -119,6 +120,7 @@
     <ClCompile Include="sql_service.cpp" />
     <None Include="change_userinfo.qss" />
     <None Include="computer_manager.qss" />
+    <None Include="config.json" />
     <None Include="create_room_window.qss" />
     <None Include="login_windows.qss" />
     <None Include="modify_window.qss" />
@@ -148,6 +150,7 @@
     <QtMoc Include="modify_room.h" />
     <QtMoc Include="modify_machine_window.h" />
     <QtMoc Include="rent_machine_window.h" />
+    <ClInclude Include="configure_get.h" />
     <ClInclude Include="server_connector.h" />
     <ClInclude Include="sql_service.h" />
   </ItemGroup>

@@ -79,6 +79,9 @@
     <ClCompile Include="server_connector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="configure_get.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sql_service.h">
@@ -88,6 +91,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="server_connector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="configure_get.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -157,6 +163,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="create_room_window.qss">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="config.json">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

@@ -1,0 +1,13 @@
+{
+  "server": {
+    "ip": "192.168.190.132",
+    "port": 22,
+    "user": "ymc",
+    "password": "11"
+  },
+  "database": {
+    "port": "3306",
+    "user": "root",
+    "password": "334859"
+  }
+}

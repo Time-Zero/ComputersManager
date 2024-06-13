@@ -15,17 +15,12 @@
 #include "filesystem"
 #pragma comment (lib, "ws2_32.lib")
 
-typedef struct ServerInfo {
-	std::string ip;
-	int port;
-	std::string user;
-	std::string password;
-} ServerInfo;
+
 
 /// @brief Libssh2Session结构体删除器，让LIBSSH2_SESSION结构体指针能够被智能指针持有
 struct Libssh2SessionDeleter {
 	void operator()(LIBSSH2_SESSION* session) {
-		BDEBUG("libssh2 delete")
+		BDEBUG("libssh2 delete");
 		if (session != nullptr) {
 			libssh2_session_disconnect(session, "Bye");
 			libssh2_session_free(session);

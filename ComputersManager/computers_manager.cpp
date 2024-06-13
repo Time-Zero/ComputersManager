@@ -16,6 +16,7 @@ ComputersManager::ComputersManager(QWidget *parent)
     RoomTableInit();
     MachinesTableInit();
     SumPageInit();
+    BackupPageInit();
 
     connect(ui.toolButton_mainpage, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_mainpage);
     connect(ui.toolButton_user, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_user);
@@ -32,7 +33,10 @@ ComputersManager::ComputersManager(QWidget *parent)
     connect(ui.pushButton_room_sum, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_machine_room_sum);
     connect(ui.toolButton_sum, &QPushButton::clicked, this, &ComputersManager::on_click_toolbutton_sum);
     connect(ui.pushButton_sum_confirm, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_sum_confirm);
-    
+    connect(ui.toolButton_backup, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_backup);
+    connect(ui.pushButton_backup_confirm, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_backup_confirm);
+    connect(ui.toolButton_select_backup_location, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_select_backup_location);
+
     p_login_window_ = new LoginWindow();
     connect(p_login_window_, &LoginWindow::signal_login, this, &ComputersManager::slot_login);
     p_login_window_->show();
@@ -158,6 +162,11 @@ void ComputersManager::SumPageInit()
     ui.tableView_sum_room->setAlternatingRowColors(true);           // 交替颜色
     ui.tableView_sum_room->setSelectionBehavior(QAbstractItemView::SelectRows); // 选中行为为选中行
     ui.tableView_sum_room->setColumnWidth(0, 367);
+}
+
+void ComputersManager::BackupPageInit()
+{
+    ui.lineEdit_backup_location->setPlaceholderText("选择备份文件存放位置");
 }
 
 /// @brief 刷新机器表
@@ -396,6 +405,18 @@ void ComputersManager::on_click_toolbutton_sum()
 
 }
 
+void ComputersManager::on_click_toolbutton_backup()
+{
+    ui.stackedWidget->setCurrentIndex(BACKUP_PAGE);
+}
+
+void ComputersManager::on_click_toolbutton_select_backup_location()
+{
+    QString system_default_download_dir = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+    QString file_path = QFileDialog::getExistingDirectory(this, "选择文件保存路径", system_default_download_dir);
+    ui.lineEdit_backup_location->setText(file_path);
+}
+
 void ComputersManager::on_click_pushbutton_exit_login()
 {
     user_info_.id = "";
@@ -430,7 +451,8 @@ void ComputersManager::on_click_pushbutton_search_user()
     }
 
     std::future<std::string> fut_name = std::async(std::launch::async, [&]() {
-        return SqlService::GetInstance().GetUserName(user_id, user_info_.permission);
+        //return SqlService::GetInstance().GetUserName(user_id, user_info_.permission);
+        return SqlService::GetInstance().GetUserNameLowPermisson(user_id, user_info_.permission);
         });
 
     QStandardItemModel* model = static_cast<QStandardItemModel*>(ui.tableView_user->model());
@@ -632,6 +654,37 @@ void ComputersManager::on_click_pushbutton_sum_confirm()
     std::string mess = "统计结果为: " + std::to_string(ret) + "元";
 
     QMessageBox::information(this, QStringLiteral("提示"), QString::fromStdString(mess));
+}
+
+void ComputersManager::on_click_pushbutton_backup_confirm()
+{
+    std::string backup_file_stroage_location = ui.lineEdit_backup_location->text().toStdString();
+    if (backup_file_stroage_location.empty()) {
+        QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("备份文件保存路径不能为空"));
+    }
+    backup_file_stroage_location += "/CMDB.sql";
+
+    ServerInfo server_info;
+    ConfigureGet config;
+    config.GetServerConfig(server_info);
+    auto config_vec = config.GetSqlConfig();
+    std::string str_for_backup = "mysqldump -u" + config_vec[2] + " -p" + config_vec[3] + " --routines --databases CMDB > /home/" + server_info.user + "/CMDB.sql";
+    std::string str_file_location_on_server = "/home/" + server_info.user + "/CMDB.sql";
+    
+    std::unique_ptr<ServerConnector> server_connector(new ServerConnector(server_info));
+    try
+    {
+        server_connector->ExecCommand(str_for_backup);
+        server_connector->DownloadFileFromServer2Local(str_file_location_on_server, backup_file_stroage_location);
+    }
+    catch (const std::exception& e)
+    {
+        BDEBUG(e.what());
+        QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("备份失败"));
+        return;
+    }
+
+    QMessageBox::information(this, QStringLiteral("提示"), QStringLiteral("备份成功"));
 }
 
 void ComputersManager::on_click_tableview_user(const QModelIndex& index)

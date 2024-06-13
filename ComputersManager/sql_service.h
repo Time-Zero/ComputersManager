@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "common_tools.h"
+#include "configure_get.h"
 #include <jdbc/cppconn/exception.h>
 #include <jdbc/cppconn/prepared_statement.h>
 #include <jdbc/cppconn/resultset.h>
@@ -12,9 +13,9 @@
 #include <vector>
 
 
-#define SQL_IP "tcp://172.30.131.79:3306/CMDB"
-#define SQL_USER "admin"
-#define SQL_PASSWORD "334859"
+//#define SQL_IP "tcp://172.30.131.79:3306/CMDB"
+//#define SQL_USER "root"
+//#define SQL_PASSWORD "334859"
 
 #define USER_INFO_TABLE "user_info"
 #define	USER_PERMISSION_TABLE "user_permission"
@@ -100,7 +101,7 @@ public:
 	void GetUserInfo(UserInfo& user_info);							//获取用户信息，登录后主页显示用的
 	void GetManagerInfo(UserInfo& user_info);						//主要是为了查权限
 	std::string GetUserPassword(std::string& userid);				//获取用户密码
-	std::string GetUserName(std::string& userid, unsigned int userpermission);			// 获取用户名，设置管理员用的，只能返回权限比自己小的人
+	std::string GetUserNameLowPermisson(std::string& userid, unsigned int userpermission);			// 获取用户名，设置管理员用的，只能返回权限比自己小的人
 	std::string GetUserName(std::string& userid);
 	unsigned int Register(UserInfo& user_info);					// 注册用的
 	unsigned int ModifyInfo(UserInfo& user_info);				// 自己主动修改信息
@@ -131,7 +132,8 @@ public:
 
 
 private:
-	SqlService(std::string ip = SQL_IP, std::string user = SQL_USER, std::string password = SQL_PASSWORD);
+	//SqlService(std::string ip, std::string user, std::string password);
+	SqlService();
 	~SqlService();
 private:
 	/*sql::Connection* p_conn_;

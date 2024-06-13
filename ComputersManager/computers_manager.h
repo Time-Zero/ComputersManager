@@ -13,6 +13,10 @@
 #include <qstandarditemmodel.h>
 #include <QtWidgets/QWidget>
 #include "rent_machine_window.h"
+#include "server_connector.h"
+#include "qfiledialog.h"
+#include "qstandardpaths.h"
+#include "configure_get.h"
 
 
 #define MAIN_PAGE 0
@@ -20,6 +24,7 @@
 #define USER_CONTROL_PAGE 2
 #define MACHINE_ROOM_PAGE 3
 #define SUM_PAGE 4
+#define BACKUP_PAGE 5
 
 #define TABLE_WIDTH 736
 
@@ -64,12 +69,15 @@ private:
     void RoomTableInit();
     void MachinesTableInit();
     void SumPageInit();
+    void BackupPageInit();
     void RefreshMachineTable(QStandardItemModel* model, std::string& room_name);
     void slot_login(std::string userid);
     void on_click_toolbutton_mainpage();
     void on_click_toolbutton_user();
     void on_click_toolbutton_room();
     void on_click_toolbutton_sum();
+    void on_click_toolbutton_backup();
+    void on_click_toolbutton_select_backup_location();
     void on_click_pushbutton_exit_login();
     void on_click_pushbutton_modify_info();
     void on_click_pushbutton_search_user();
@@ -81,6 +89,7 @@ private:
     void on_click_pushbutton_machine_room_sum();
     void on_click_pushbutton_machine_delete();
     void on_click_pushbutton_sum_confirm();
+    void on_click_pushbutton_backup_confirm();
     void on_click_tableview_user(const QModelIndex& index);
     void on_click_tableview_room(const QModelIndex& index);
     void on_click_tableview_machine(const QModelIndex& index);

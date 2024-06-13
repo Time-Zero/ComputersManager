@@ -1,0 +1,68 @@
+Package: vcpkg-cmake
+Version: 2023-05-04
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 9063c4b953ff166b420769bc5357659eb64602ac2ffe9fd182d3634156a030d4
+Status: install ok installed
+
+Package: zlib
+Version: 1.3.1
+Depends: vcpkg-cmake
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 97c7c05e01c32c22dd6cc881aab07cdf913f69935b2e0909b06ecdc71cb1663c
+Description: A compression library
+Status: install ok installed
+
+Package: vcpkg-cmake-get-vars
+Version: 2023-12-31
+Depends: vcpkg-cmake
+Architecture: x64-windows
+Multi-Arch: same
+Abi: dde1b638a4081d7b18ae590fd7f8acb1dbaf0cef845165e2257a7bc7bb39dea0
+Status: install ok installed
+
+Package: vcpkg-cmake-config
+Version: 2022-02-06
+Port-Version: 1
+Architecture: x64-windows
+Multi-Arch: same
+Abi: fc1e6a3c4e560d050c319a57b77ae96fced0ae87660ba4609dd14ff12608360e
+Status: install ok installed
+
+Package: openssl
+Version: 3.3.0
+Depends: vcpkg-cmake, vcpkg-cmake-config, vcpkg-cmake-get-vars
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 7e29d22a451b49af771092187718c1dc9f8dd6f3f19bdb1e829a24574c61c4f3
+Description: OpenSSL is an open source project that provides a robust, commercial-grade, and full-featured toolkit for the Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols. It is also a general-purpose cryptography library.
+Status: install ok installed
+
+Package: libssh2
+Version: 1.11.0
+Port-Version: 1
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: f034fb63a2b6402203ad2a4aea353eebe5f442564d3924c0e8d0319413b2bdfe
+Description: libssh2 is a client-side C library implementing the SSH2 protocol.
+Default-Features: openssl, zlib
+Status: install ok installed
+
+Package: libssh2
+Feature: openssl
+Depends: openssl
+Architecture: x64-windows
+Multi-Arch: same
+Description: Use the openssl crypto backend
+Status: install ok installed
+
+Package: libssh2
+Feature: zlib
+Depends: zlib
+Architecture: x64-windows
+Multi-Arch: same
+Description: Use compression via zlib
+Status: install ok installed
+

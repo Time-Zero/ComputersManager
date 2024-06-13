@@ -47,8 +47,6 @@ ServerConnector::ServerConnector(const ServerInfo& server_info) :
 	if (ret != 0) {
 		throw std::runtime_error("userauth failed");
 	}
-
-
 }
 
 ServerConnector::~ServerConnector()

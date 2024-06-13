@@ -1,5 +1,6 @@
 {
   "dependencies": [
-    "libssh2"
+    "libssh2",
+    "nlohmann-json"
   ]
 }
