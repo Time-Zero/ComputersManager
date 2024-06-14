@@ -1,10 +1,13 @@
 ﻿#include "computers_manager.h"
 
+/// @brief 构造函数
+/// @param parent 
 ComputersManager::ComputersManager(QWidget *parent)
     : QWidget(parent),
     p_modify_window_(nullptr),
     current_machine_room("")
 {
+    // 读取和设置样式表
     ui.setupUi(this);
     QFile file(":/ComputersManager/computer_manager.qss");
     if (file.open(QFile::ReadOnly)) {
@@ -12,12 +15,13 @@ ComputersManager::ComputersManager(QWidget *parent)
         file.close();
     }
     
-    UserTableInit();
-    RoomTableInit();
-    MachinesTableInit();
-    SumPageInit();
-    BackupPageInit();
+    UserTableInit();    // 用户表初始化
+    RoomTableInit();    // 房间表初始化
+    MachinesTableInit();    // 机房表初始化
+    SumPageInit();      // 统计页面初始化
+    BackupPageInit();   // 备份页面初始化
 
+    // 信号和槽函数绑定
     connect(ui.toolButton_mainpage, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_mainpage);
     connect(ui.toolButton_user, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_user);
     connect(ui.toolButton_room, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_room);
@@ -37,9 +41,9 @@ ComputersManager::ComputersManager(QWidget *parent)
     connect(ui.pushButton_backup_confirm, &QPushButton::clicked, this, &ComputersManager::on_click_pushbutton_backup_confirm);
     connect(ui.toolButton_select_backup_location, &QToolButton::clicked, this, &ComputersManager::on_click_toolbutton_select_backup_location);
 
-    p_login_window_ = new LoginWindow();
-    connect(p_login_window_, &LoginWindow::signal_login, this, &ComputersManager::slot_login);
-    p_login_window_->show();
+    p_login_window_ = new LoginWindow();            // 登录窗口
+    connect(p_login_window_, &LoginWindow::signal_login, this, &ComputersManager::slot_login);      // 登录窗口的信号和槽绑定
+    p_login_window_->show();            // 登录窗口显示
 }
 
 ComputersManager::~ComputersManager()

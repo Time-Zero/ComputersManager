@@ -3,7 +3,6 @@
 #include <Windows.h>
 #include "login_window.h"
 #include "server_connector.h"
-#include "fstream"
 
 int main(int argc, char *argv[])
 {

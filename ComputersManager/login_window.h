@@ -15,6 +15,7 @@
 #include "configure_get.h"
 #include "memory"
 
+/// @brief 登录页面
 class LoginWindow : public QWidget
 {
 	Q_OBJECT

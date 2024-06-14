@@ -28,6 +28,7 @@
 
 #define TABLE_WIDTH 736
 
+/// @brief qtableview中用户表的索引
 enum TABLE_USER
 {
     TABLE_ID = 0,
@@ -36,6 +37,7 @@ enum TABLE_USER
     TABLE_ORDER = 3
 };
 
+/// @brief 房间表索引
 enum TABLE_ROOM {
     TABLE_ROOM_NAME,
     TABLE_ROOM_STATUES,
@@ -44,6 +46,7 @@ enum TABLE_ROOM {
     TABLE_ROOM_MANAGER_NAME
 };
 
+/// @brief 机器表索引
 enum MACHINE_TABLE {
     MACHINE_ID,
     MACHINE_STATUS,
@@ -55,6 +58,7 @@ enum MACHINE_TABLE {
     MACHINE_NAME
 };
 
+/// @brief 主窗口
 class ComputersManager : public QWidget
 {
     Q_OBJECT
