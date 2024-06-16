@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "add_machine_winodw.h"
 #include "change_userinfo.h"
@@ -28,7 +28,7 @@
 
 #define TABLE_WIDTH 736
 
-/// @brief qtableviewÖĞÓÃ»§±íµÄË÷Òı
+/// @brief qtableviewä¸­ç”¨æˆ·è¡¨çš„ç´¢å¼•
 enum TABLE_USER
 {
     TABLE_ID = 0,
@@ -37,7 +37,7 @@ enum TABLE_USER
     TABLE_ORDER = 3
 };
 
-/// @brief ·¿¼ä±íË÷Òı
+/// @brief æˆ¿é—´è¡¨ç´¢å¼•
 enum TABLE_ROOM {
     TABLE_ROOM_NAME,
     TABLE_ROOM_STATUES,
@@ -46,7 +46,7 @@ enum TABLE_ROOM {
     TABLE_ROOM_MANAGER_NAME
 };
 
-/// @brief »úÆ÷±íË÷Òı
+/// @brief æœºå™¨è¡¨ç´¢å¼•
 enum MACHINE_TABLE {
     MACHINE_ID,
     MACHINE_STATUS,
@@ -58,7 +58,7 @@ enum MACHINE_TABLE {
     MACHINE_NAME
 };
 
-/// @brief Ö÷´°¿Ú
+/// @brief ä¸»çª—å£
 class ComputersManager : public QWidget
 {
     Q_OBJECT

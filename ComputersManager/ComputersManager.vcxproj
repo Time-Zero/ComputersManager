@@ -68,12 +68,12 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>D:\LIBS\CPP_LIBS\MySQL_Connector\mysql-connector-c++-8.4.0-winx64-debug\mysql-connector-c++-8.4.0-winx64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Code\CPP\ComputersManager\mysql-connector-c++-8.4.0-winx64-debug\mysql-connector-c++-8.4.0-winx64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>D:\LIBS\CPP_LIBS\MySQL_Connector\mysql-connector-c++-8.4.0-winx64-debug\mysql-connector-c++-8.4.0-winx64\lib64\vs14\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\Code\CPP\ComputersManager\mysql-connector-c++-8.4.0-winx64-debug\mysql-connector-c++-8.4.0-winx64\lib64\vs14\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>mysqlcppconn.lib;mysqlcppconn8.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
