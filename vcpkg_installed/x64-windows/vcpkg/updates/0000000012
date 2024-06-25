@@ -1,0 +1,7 @@
+Package: libssh2
+Feature: zlib
+Depends: zlib
+Architecture: x64-windows
+Multi-Arch: same
+Description: Use compression via zlib
+Status: install ok half-installed
